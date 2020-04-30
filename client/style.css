@@ -1,0 +1,58 @@
+.cardButton {
+    display: none;
+    width: 100%;
+}
+
+#playTable {
+    display: none;
+}
+
+#humanTable {
+    display: none;
+}
+
+#playerInfo {
+    display: none;
+}
+
+#waitMessage {
+    display: none;
+}
+
+#endTurnButton {
+    width: 80%;
+}
+
+.labelCol {
+    width: 8%;
+    font-weight: bolder;
+    text-align: left;
+}
+
+.buttonCol {
+    width: 12%;
+    font-weight: bolder;
+    text-align: center;
+}
+
+#cardDescriptiosn {
+    font-size: 12px;
+    vertical-align: top;
+}
+
+.rowLabel {
+    width: 8%;
+    font-weight: bolder;
+}
+
+.rowLabel {
+    width: 20%;
+    font-weight: bolder;
+}
+
+.humanCol {
+    width: 15%;
+    border-collapse: collapse;
+    border: 1px solid black;
+    text-align: center;
+}
