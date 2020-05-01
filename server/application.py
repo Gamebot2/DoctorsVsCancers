@@ -2,8 +2,9 @@ from flask import Flask, render_template, send_file, Response, request, jsonify
 from game import Game
 from player import Player
 from flask_cors import CORS
+import os
 
-app = Flask(__name__, static_url_path='/static', static_folder='../client/static')
+app = Flask(__name__, static_url_path='/static', static_folder=os.path.join("../","client","static"))
 CORS(app)
 
 players = []  # Array of all player objects
@@ -13,7 +14,7 @@ games_started = []
 
 @app.route('/', methods=['GET'])
 def render_index():
-    return send_file('../client/index.html')
+    return send_file(os.path.join("../","client","index.html"))
 
 # Adds a new player to the lobby (requires the url parameter to start the game for)
 @app.route('/entergame', methods = ['POST'])
