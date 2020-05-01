@@ -1,5 +1,6 @@
 from player import Player
 from card import Card
+from human import Human
 import random
 
 class Game:
@@ -21,32 +22,18 @@ class Game:
         self.player1_deck = []
         self.player2_deck = []
         self.master_deck = []
-        
 
-        #Effects on the human cards
-        #Each of these are lists of STRINGS for displaying all effects
-        self.man1_effects = []
-        self.man2_effects = []
-        self.woman1_effects = []
-        self.woman2_effects = []
+        self.zombie_reshuffled = 0
+        self.doctor_reshuffled = 0
 
-        # Blocked cards for each of the players
-        # Each of these are a list of CARD IDs that cannot be played on that human
-        self.man1_blocked_cards = []
-        self.man2_blocked_cards = []
-        self.woman1_blocked_cards = []
-        self.woman2_blocked_cards = []
-
-        self.man1_cancer_points = []
-        self.man2_cancer_points = []
-        self.woman1_cancer_points = []
-        self.woman2_cancer_points = []
-
-        self.effects_map = {0: self.man1_effects, 1: self.man2_effects, 2: self.woman1_effects, 3: self.woman2_effects}
-        self.blocked_cards_map = {0: self.man1_blocked_cards, 1: self.man2_blocked_cards, 2: self.woman1_blocked_cards, 3: self.woman2_blocked_cards}
-        self.cancer_points_map = {0: self.man1_cancer_points, 1: self.man2_cancer_points, 2: self.woman1_cancer_points, 3: self.woman2_cancer_points}
+        self.humans = []
+        self.humans.append(Human(0, "Man 1", [], [], [], 0, 0, 0, 0, []))
+        self.humans.append(Human(1, "Man 2", [], [], [], 0, 0, 0, 0, []))
+        self.humans.append(Human(2, "Woman 1", [], [], [], 0, 0, 0, 0, []))
+        self.humans.append(Human(3, "Woman 2", [], [], [], 0, 0, 0, 0, []))
         
         self.spec_map = {"L":"Lung Cancer", "B":"Breast Cancer","P":"Prostate Cancer","C":"Colon Cancer","N":"Pancreatic Cancer","M":"Mouth/Throat Cancer", "U":"Uterus/Ovary Cancer","R":"Cervical Cancer"}
+        self.index_map = {"L": 0, "B": 1, "P": 2, "C": 3, "N": 4, "M": 5, "U": 6, "R":7}
 
         self.init_cancer_points()
         self.init_cards()
@@ -91,7 +78,7 @@ class Game:
         self.zombie_deck.append(Card(19, "BRCA1 germline (inherited)", "Z1B1G", "Zombie", "MUTAGEN-CELL FACTOR", 1, "2 points towards breast or ovary", "BO", 2, ["Breast", "Uterus/Ovary"], [], ""))
         self.zombie_deck.append(Card(20, "BRCA2 germline (inherited)", "Z1B2G", "Zombie", "MUTAGEN-CELL FACTOR", 1, "2 points towards breast, prostate, or pancreas", "BPN", 2, ["Breast", "Prostate", "Pancreatic"], [], ""))
         self.zombie_deck.append(Card(21, "p53 germline (inherited)", "Z1PG", "Zombie", "MUTAGEN-CELL FACTOR", 1, "2 points towards breast", "B", 2, ["Breast"], [], ""))
-        self.zombie_deck.append(Card(22, "Mismatch repair germline (inherited)", "Z1MMG", "Zombie", "MUTAGEN-CELL FACTOR", 1, "2 points towards colon or gyn", "CG", 2, ["Colon", "Uterus/Ovary"], [], "")) #What the hell is Gyn
+        self.zombie_deck.append(Card(22, "Mismatch repair germline (inherited)", "Z1MMG", "Zombie", "MUTAGEN-CELL FACTOR", 1, "2 points towards colon or gyn", "CUR", 2, ["Colon", "Uterus/Ovary", "Cervical"], [], "")) #What the hell is Gyn
         self.zombie_deck.append(Card(23, "APC germline (inherited)", "Z1PG", "Zombie", "MUTAGEN-CELL FACTOR", 1, "3 points towards colon", "C", 3, ["Colon"], [], ""))
         self.zombie_deck.append(Card(24, "p53 somatic (not hereditary)", "Z1PS", "Zombie", "MUTAGEN-CELL FACTOR", 1, "1 point towards any cancer", "A", 1, ["Any"], [], ""))
         self.zombie_deck.append(Card(25, "PTEN somatic (not hereditary)", "Z1PT", "Zombie", "MUTAGEN-CELL FACTOR", 1, "1 point towards any cancer", "A", 1, ["Any"], [], ""))
@@ -118,6 +105,31 @@ class Game:
         self.zombie_deck.append(Card(46, "Family history colon", "Z1FHC", "Zombie", "MUTAGEN-HUMAN FACTOR", 1, "1 point towards colon", "C", 1, ["Colon"], [], ""))
         self.zombie_deck.append(Card(47, "Family history pancreatic", "Z1FHPC", "Zombie", "MUTAGEN-HUMAN FACTOR", 1, "1 point towards pancreatic", "N", 1, ["Pancreatic"], [], ""))
 
+        #Zombie Deck: Major attack cards
+        self.zombie_deck.append(Card(48, "Brain Metastasis", "Z2BR", "Zombie", "MAJOR ATTACK", 2, "Use in breast with HER2 or lung cancer", "BL", 0, ["Lung", "Breast"], [], "Hit by Brain Metastasis!"))
+        self.zombie_deck.append(Card(49, "Lung Metastasis", "Z2LG1", "Zombie", "MAJOR ATTACK", 2, "Use in lung, breast, colon, gyn cancers", "LBCUR", 0, ["Lung", "Breast", "Colon", "Uterus/Ovary", "Cervical"], [], "Hit by Lung Metastasis!"))
+        self.zombie_deck.append(Card(50, "Lung Metastasis", "Z2LG2", "Zombie", "MAJOR ATTACK", 2, "Use in lung, breast, colon, gyn cancers", "LBCUR", 0, ["Lung", "Breast", "Colon", "Uterus/Ovary", "Cervical"], [], "Hit by Lung Metastasisi!"))
+        self.zombie_deck.append(Card(51, "Malignant Pleural Effusion", "Z2PL1", "Zombie", "MAJOR ATTACK", 2, "Use in lung, breast cancers", "LB", 0, ["Lung", "Breast"], [], "Hit by Malignant Pleural Effusion!"))
+        self.zombie_deck.append(Card(52, "Malignant Pleural Effusion", "Z2PL2", "Zombie", "MAJOR ATTACK", 2, "Use in lung, breast cancers", "LB", 0, ["Lung", "Breast"], [], "Hit by Malignant Pleural Effusion!"))
+        self.zombie_deck.append(Card(53, "Liver Metastasis", "Z2LV1", "Zombie", "MAJOR ATTACK", 2, "Use in lung, breast, colon, gyn, pancreatic cancers", "LBCURN", 0, ["Lung", "Breast", "Colon", "Uterus/Ovary", "Cervical", "Pancreatic"], [], "Hit by Liver Metastasis!"))
+        self.zombie_deck.append(Card(54, "Liver Metastasis", "Z2LV2", "Zombie", "MAJOR ATTACK", 2, "Use in lung, breast, colon, gyn, pancreatic cancers", "LBCURN", 0, ["Lung", "Breast", "Colon", "Uterus/Ovary", "Cervical", "Pancreatic"], [], "Hit by Liver Metastasis!"))
+        self.zombie_deck.append(Card(55, "Malignant Ascites", "Z2AS1", "Zombie", "MAJOR ATTACK", 2, "Use in lung, breast, colon, gyn, pancreatic cancers", "LBCURN", 0, ["Lung", "Breast", "Colon", "Uterus/Ovary", "Cervical", "Pancreatic"], [], "Hit by Malignant Ascites!"))
+        self.zombie_deck.append(Card(56, "Malignant Ascites", "Z2AS2", "Zombie", "MAJOR ATTACK", 2, "Use in lung, breast, colon, gyn, pancreatic cancers", "LBCURN", 0, ["Lung", "Breast", "Colon", "Uterus/Ovary", "Cervical", "Pancreatic"], [], "Hit by Malignant Ascites!"))
+        self.zombie_deck.append(Card(57, "Bone Metastasis", "Z2BO1", "Zombie", "MAJOR ATTACK", 2, "Use in lung, breast, prostate, gyn cancers", "LBPUR", 0, ["Lung", "Breast", "Prostate", "Uterus/Ovary", "Cervical"], [], "Hit by Bone Metastasis!"))
+        self.zombie_deck.append(Card(58, "Bone Metastasis", "Z2BO2", "Zombie", "MAJOR ATTACK", 2, "Use in lung, breast, prostate, gyn cancers", "LBPUR", 0, ["Lung", "Breast", "Prostate", "Uterus/Ovary", "Cervical"], [], "Hit by Bone Metastasis!"))
+        self.zombie_deck.append(Card(59, "Invade Locally", "Z2IN1", "Zombie", "MAJOR ATTACK", 2, "Use in any tumor", "A", 0, ["Any"], [], "Invaded Locally!"))
+        self.zombie_deck.append(Card(60, "Invade Locally", "Z2IN2", "Zombie", "MAJOR ATTACK", 2, "Use in any tumor", "A", 0, ["Any"], [], "Invaded Locally!"))
+        self.zombie_deck.append(Card(61, "Bone Fracture", "Z2BF", "Zombie", "MAJOR ATTACK", 2, "Use after bone metastasis", "A", 0, ["Any"], [], "Hit by Bone Fracture!"))
+
+        #Indirect attack cards
+        self.zombie_deck.append(Card(62, "MDR Gene", "Z2MDR", "Zombie", "INDIRECT ATTACK", 2, "Blocks all chemotherapy", "", 0, [], [98, 99, 100, 101, 102], "MDR: Chemotherapy Blocked"))
+        self.zombie_deck.append(Card(63, "Radiation Resistance", "Z2RR", "Zombie", "INDIRECT ATTACK", 2, "Blocks palliative radiation", "", 0, [], [109, 110], "Palliative Radiation Blocked"))
+        self.zombie_deck.append(Card(64, "Fatigue", "Z2F1", "Zombie", "INDIRECT ATTACK", 2, "No medical treatment until better", "", 0, [], list(range(98, 108)), "No medical treatment until better"))
+        self.zombie_deck.append(Card(65, "Fatigue", "Z2F2", "Zombie", "INDIRECT ATTACK", 2, "No medical treatment until better", "", 0, [], list(range(98, 108)), "No medical treatment until better"))
+        self.zombie_deck.append(Card(66, "Pain", "Z2PN", "Zombie", "INDIRECT ATTACK", 2, "No medical treatment until better", "", 0, [], list(range(98, 108)), "No medical treatment until better"))
+        self.zombie_deck.append(Card(67, "Depression", "Z2DP", "Zombie", "INDIRECT ATTACK", 2, "No treatment until better", "", 0, [], list(range(88, 115)), "No treatment until better"))
+        self.zombie_deck.append(Card(68, "Lack of healthcare", "Z2HC1", "Zombie", "INDIRECT ATTACK", 2, "No treatment until better", "", 0, [], list(range(88, 115)), "No treatment until better"))
+        self.zombie_deck.append(Card(69, "Lack of healthcare", "Z2HC2", "Zombie", "INDIRECT ATTACK", 2, "No treatment until better", "", 0, [], list(range(88, 115)), "No treatment until better"))
 
         # TODO: Add the Doctor Deck Here
         self.doctor_deck.append(Card(70, "Change your diet!", "D1DT1", "Doctor", "PRE-EMPTION", 1, "Blocks too much food", "", 0, [], [36, 37], "Can't eat too much!"))
@@ -156,10 +168,9 @@ class Game:
             self.doctor_deck.remove(card)
 
         # Adding the initial effects on the human players
-        self.man1_effects.append('Healthy')
-        self.man2_effects.append('Healthy')
-        self.woman1_effects.append('Healthy')
-        self.woman2_effects.append('Healthy')
+        for i in range(len(self.humans)):
+            human = self.humans[i]
+            human.effects.append('Healthy')
 
     # Initializes the master deck for easy card retrieval
     def init_master_deck(self):
@@ -170,16 +181,14 @@ class Game:
 
     #Order of cancer points: L, B, P, C, N, M, U, R
     def init_cancer_points(self):
-        for i in range(8):
-            self.man1_cancer_points.append(0)
-            self.man2_cancer_points.append(0)
-            self.woman1_cancer_points.append(0)
-            self.woman2_cancer_points.append(0)
+        for i in range(len(self.humans)):
+            human = self.humans[i]
+            for i in range(8):
+                human.cancer_points.append(0)
 
     # player_id, card_id, and human_card_id show which player playing which card on which human
     # specifier specifies extra choice like which cancer to put points towards
     def play_card(self, player_id, card_id, human_card_id, specifier):
-        #Card adds points to cancer based on specifier
         if card_id >= 19 and card_id <= 47:
             # ----------- CANCER CARDS THAT ADD POINTS FOR SPECIFIC CANCERS IN PHASE 1 -------
             cancer_points = self.get_cancer_points_by_human_id(human_card_id)
@@ -190,18 +199,58 @@ class Game:
                 return "That card is blocked!"
 
             card = self.get_card_by_id(card_id)
-            new_card = self.zombie_deck[0]
-            old_card_index = self.player1_deck.index(card)
-            self.player1_deck[old_card_index] = new_card
+            self.replace_card_zombie(card_id)
 
-            #TODO: Handle the case when zombie_deck is empty: either reshuffle or end game
-            self.zombie_discard_pile.append(card)
-            self.zombie_deck.remove(new_card)
+            if card.name == "HER2 somatic (not hereditary)":
+                self.humans[human_card_id].her2 = 1
 
             cancer_points[index] = cancer_points[index] + card.point_effect
             if cancer_points[index] >= 4:
                 #Human now has that cancer baby
                 self.give_human_cancer(human_card_id, specifier)
+                effects = self.get_effects_by_human_id(human_card_id)
+                if "Healthy" in effects:
+                    effects.remove("Healthy")
+        elif card_id >= 48 and card_id <= 61:
+            # ----------- ZOMBIE PHASE 2 MAJOR ATTACK CARDS ---------------
+            # First need to return error if human doesn't have cancer specified
+            if not self.check_human_cancer(human_card_id, specifier):
+                return "This human does not have that cancer!"
+            
+            # Return error if the human is dead
+            if self.check_dead(human_card_id):
+                return "This human is already dead."
+            
+            card = self.get_card_by_id(card_id)
+            if card.name == "Bone Fracture" and self.humans[human_card_id].bone_metastasis == 0:
+                return "This human hasn't been hit by bone metastasis yet!"
+            
+            if card.name == "Brain Metastasis" and self.humans[human_card_id].her2 == 0:
+                return "This human does not have HER2!"
+            
+            self.replace_card_zombie(card_id)
+
+            # Assign the human the effect associated with card, and up major attacks. Check for death
+            self.humans[human_card_id].add_attack(card.name, specifier, 0, card)
+
+        elif card_id >= 62 and card_id <= 69:
+            #--------- ZOMBIE PHASE 2 INDIRECT ATTACK CARDS: BLOCK CERTAIN TREATMENTS-----------
+            card = self.get_card_by_id(card_id)
+
+            # Return error if the human is dead
+            if self.check_dead(human_card_id):
+                return "This human is already dead."
+            
+            # Return error if that human already has the effect
+            if card.effect_message in self.humans[human_card_id].effects:
+                return "That effect is already present!"
+
+            self.replace_card_zombie(card_id)
+            card = self.get_card_by_id(card_id)
+
+            # Adds the indirect attack effect and blocked cards for the appropriate human
+            self.humans[human_card_id].add_attack(card.name, specifier, 1, card)
+
         elif card_id >= 70 and card_id <= 76:
             #--------- DOCTOR CARDS THAT BLOCK CERTAIN PHASE 1 CANCER CARDS ----------
             blocked_cards = self.get_blocked_cards_by_human_id(human_card_id)
@@ -215,6 +264,8 @@ class Game:
             blocked_cards.extend(card.blocked_cards)
             effects.append(new_effect)
 
+            self.replace_card_doctor(card_id)
+
         elif card_id >= 77 and card_id <= 86:
             #--------- DOCTOR CARDS THAT SUBTRACT POINTS TOWARDS CANCERS ----------
             cancer_points = self.get_cancer_points_by_human_id(human_card_id)
@@ -224,18 +275,11 @@ class Game:
                 return "Points already at 0: can't go lower!"
 
             card = self.get_card_by_id(card_id)
-            new_card = self.doctor_deck[0]
-            old_card_index = self.player2_deck.index(card)
-            self.player2_deck[old_card_index] = new_card
-
-            self.doctor_discard_pile.append(0)
-            self.doctor_deck.remove(new_card)
+            self.replace_card_doctor(card_id)
 
             cancer_points[index] = cancer_points[index] - card.point_effect
             if cancer_points[index] < 0:
                 cancer_points[index] = 0
-        
-            
 
         return "Success"
     
@@ -245,31 +289,73 @@ class Game:
             for i in range(len(self.player1_deck)):
                 card = self.player1_deck[i]
                 if card.id == card_id:
-                    new_card = self.zombie_deck[0]
-                    old_card_index = self.player1_deck.index(card)
-                    self.player1_deck[old_card_index] = new_card
-
-                    #TODO: Handle the case when zombie_deck is empty: either reshuffle or end game
-                    self.zombie_discard_pile.append(card)
-                    self.zombie_deck.remove(new_card)
+                    self.replace_card_zombie(card_id)
         else:
             #Doctor is discarding
             for i in range(len(self.player2_deck)):
                 card = self.player2_deck[i]
                 if card.id == card_id:
-                    new_card = self.doctor_deck[0]
-                    old_card_index = self.player2_deck.index(card)
-                    self.player2_deck[old_card_index] = new_card
-
-                    self.doctor_discard_pile.append(card)
-                    self.doctor_deck.remove(new_card)
+                    self.replace_card_doctor(card_id)
+            print(self.player2_deck)
         return 1
+
+    def replace_card_zombie(self, card_id):
+        card = self.get_card_by_id(card_id)
+
+        #Deck is empty: need to get stuff from discard pile and put it back in
+        if len(self.zombie_deck) == 0:
+            self.zombie_deck.extend(self.zombie_discard_pile)
+            self.zombie_discard_pile.clear()
+            self.zombie_reshuffled = self.zombie_reshuffled + 1
+            print("Reshuffled " + str(self.zombie_reshuffled) + " times")
+
+        new_card = self.zombie_deck[0]
+        old_card_index = self.player1_deck.index(card)
+        self.player1_deck[old_card_index] = new_card
+
+        #TODO: Handle the case when zombie_deck is empty: either reshuffle or end game
+        self.zombie_discard_pile.append(card)
+        self.zombie_deck.remove(new_card)
+
+    def replace_card_doctor(self, card_id):
+        card = self.get_card_by_id(card_id)
+        
+        #Deck is empty: need to get stuff from discard pile and put it back in
+        if len(self.doctor_deck) == 0:
+            self.doctor_deck.extend(self.doctor_discard_pile)
+            self.doctor_discard_pile.clear()
+            self.doctor_reshuffled = self.doctor_reshuffled + 1
+            print("Reshuffled doctor deck " + str(self.doctor_reshuffled) + " times")
+
+        new_card = self.doctor_deck[0]
+        old_card_index = self.player2_deck.index(card)
+        self.player2_deck[old_card_index] = new_card
+
+        self.doctor_discard_pile.append(card)
+        self.doctor_deck.remove(new_card)
     
     def switch_player(self):
         if self.player_moving == 1:
+            # Switching from Zombie phase to Doctor phase
             self.player_moving = 2
         else:
+            # Switching from Doctor phase to Zombie phase
             self.player_moving = 1
+
+            for i in range(4):
+                if self.humans[i].about_to_die == 1:
+                    # Kill this dude
+                    self.kill_human(i)
+
+
+    def kill_human(self, human_card_id):
+        effects = self.get_effects_by_human_id(human_card_id)
+        effects.clear()
+        effects.append("Dead")
+        self.humans[human_card_id].about_to_die = -1
+    
+    def check_dead(self, human_card_id):
+        return self.humans[human_card_id].major_attacks == 2 and self.humans[human_card_id].about_to_die == -1
 
     def get_client_state(self, player_id):
         client_state = {}
@@ -290,15 +376,21 @@ class Game:
 
 
         client_state["player_deck"] = player_deck   
-        client_state["man1_effects"] = self.man1_effects
-        client_state["man2_effects"] = self.man2_effects
-        client_state["woman1_effects"] = self.woman1_effects
-        client_state["woman2_effects"] = self.woman2_effects 
+        client_state["man1_effects"] = self.humans[0].effects
+        client_state["man2_effects"] = self.humans[1].effects
+        client_state["woman1_effects"] = self.humans[2].effects
+        client_state["woman2_effects"] = self.humans[3].effects 
 
-        client_state["man1_cancer_points"] = self.man1_cancer_points 
-        client_state["man2_cancer_points"] = self.man2_cancer_points
-        client_state["woman1_cancer_points"] = self.woman1_cancer_points
-        client_state["woman2_cancer_points"] = self.woman2_cancer_points
+        client_state["man1_cancer_points"] = self.humans[0].cancer_points 
+        client_state["man2_cancer_points"] = self.humans[1].cancer_points 
+        client_state["woman1_cancer_points"] = self.humans[2].cancer_points 
+        client_state["woman2_cancer_points"] = self.humans[3].cancer_points 
+
+        client_state["zombie_discard_size"] = len(self.zombie_discard_pile)
+        client_state["doctor_discard_size"] = len(self.doctor_discard_pile)
+
+        client_state["zombie_deck_size"] = len(self.zombie_deck)
+        client_state["doctor_deck_size"] = len(self.doctor_deck)
 
         # TODO: insert more things to return here
         return client_state
@@ -308,6 +400,12 @@ class Game:
         effects = self.get_effects_by_human_id(human_card_id)
         effect = "Has " + self.spec_map[specifier]
         effects.append(effect)
+    
+    # Checks if a human has a specific cancer
+    def check_human_cancer(self, human_card_id, specifier):
+        index = self.parse_specifier(specifier)
+        cancer_points = self.get_cancer_points_by_human_id(human_card_id)
+        return cancer_points[index] >= 4
 
     # Returns appropriate card given just the card idea: searches all decks
     def get_card_by_id(self, card_id):
@@ -318,36 +416,21 @@ class Game:
 
     # Returns appropriate cancer points array for human card id provided
     def get_cancer_points_by_human_id(self, human_card_id):
-        return self.cancer_points_map[human_card_id]
+        return self.humans[human_card_id].cancer_points
     
     # Returns the appropriate blocked cards array for the human card id provided
     def get_blocked_cards_by_human_id(self, human_card_id):
-        return self.blocked_cards_map[human_card_id]
+        return self.humans[human_card_id].blocked_cards
 
     # Returns appropriate effects array for human card id provided
     def get_effects_by_human_id(self, human_card_id):
-        return self.effects_map[human_card_id]
+        return self.humans[human_card_id].effects
 
     #Returns an index based on specifier provided with following order:
     #L, B, P, C, N, M, U, R
     #Lung, Breast, Prostate, Colon, Pancreatic, Mouth, Uterus, Cervical
     def parse_specifier(self, specifier):
-        if specifier == 'L':
-            return 0
-        if specifier == 'B':
-            return 1
-        if specifier == "P":
-            return 2
-        if specifier == "C":
-            return 3
-        if specifier == "N":
-            return 4
-        if specifier == "M":
-            return 5
-        if specifier == "U":
-            return 6
-        if specifier == "R":
-            return 7
+        return self.index_map[specifier]
 
     # ToString
     def __str__(self):

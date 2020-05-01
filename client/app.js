@@ -150,7 +150,6 @@ function playCard(cardIndex) {
         callback: function(result) {
             if (result === null) return;
 
-            //Result here stores the exact specifier we need
             humanCardId = result;
             var specifier = '';
 
@@ -162,9 +161,16 @@ function playCard(cardIndex) {
                     var option = options[i];
                     var code = cancerCodeMap[option];
                     var toAdd = { text: option, value: code };
-                    inputOptions.push(toAdd);
+                    if (canGetCancer(humanCardId, option)) {
+                        inputOptions.push(toAdd);
+                    }
                 }
                 console.log(inputOptions);
+                if (inputOptions.length == 0) {
+                    //No available options for this human
+                    returnNoOptions();
+                    return;
+                }
 
                 bootbox.prompt({
                     title: "Cancer type selection",
@@ -187,7 +193,9 @@ function playCard(cardIndex) {
                     for (var option in cancerCodeMap) {
                         var code = cancerCodeMap[option];
                         var toAdd = { text: option, value: code };
-                        inputOptions.push(toAdd);
+                        if (canGetCancer(humanCardId, option)) {
+                            inputOptions.push(toAdd);
+                        }
                     }
 
                     bootbox.prompt({
@@ -204,6 +212,10 @@ function playCard(cardIndex) {
                     });
                 } else {
                     specifier = cancerCodeMap[oneOption]
+                    if (!canGetCancer(humanCardId, oneOption)) {
+                        returnNoOptions();
+                        return;
+                    }
                     sendPlayRequest(cardId, humanCardId, specifier, cardIndex);
                 }
             } else {
@@ -213,6 +225,25 @@ function playCard(cardIndex) {
         }
     });
 
+}
+
+function canGetCancer(humanCardId, option) {
+    if (humanCardId == 0 || humanCardId == 1) { //Man
+        if (option == "Breast" || option == "Uterus/Ovary" || option == "Cervical") {
+            return false;
+        }
+    }
+
+    if (humanCardId == 2 || humanCardId == 3) { //Woman
+        if (option == "Prostate") {
+            return false;
+        }
+    }
+    return true;
+}
+
+function returnNoOptions() {
+    bootbox.alert("This human can't get that cancer!");
 }
 
 function sendPlayRequest(cardId, humanCardId, specifier, cardIndex) {
@@ -312,6 +343,7 @@ function updateBoard(data) {
     setColors(playerType);
 
     updateBoardNotDeck(data);
+    updateDeckSizes(data);
 }
 
 //Updates the state of the game board but not the deck in the player's hands
@@ -330,6 +362,9 @@ function updateBoardNotDeck(data) {
         } else {
             document.getElementById(id0).innerHTML = "";
             document.getElementById(id0).style.backgroundColor = "#cccccc";
+            if (i == 1 || i == 6 || i == 7) {
+                document.getElementById(id0).style.backgroundColor = "#666666";
+            }
         }
 
         var id1 = "1points" + i;
@@ -340,6 +375,9 @@ function updateBoardNotDeck(data) {
         } else {
             document.getElementById(id1).innerHTML = "";
             document.getElementById(id1).style.backgroundColor = "#cccccc";
+            if (i == 1 || i == 6 || i == 7) {
+                document.getElementById(id1).style.backgroundColor = "#666666";
+            }
         }
 
         var id2 = "2points" + i;
@@ -349,6 +387,9 @@ function updateBoardNotDeck(data) {
         } else {
             document.getElementById(id2).innerHTML = "";
             document.getElementById(id2).style.backgroundColor = "#cccccc";
+            if (i == 2) {
+                document.getElementById(id2).style.backgroundColor = "#666666";
+            }
         }
 
         var id3 = "3points" + i;
@@ -358,8 +399,73 @@ function updateBoardNotDeck(data) {
         } else {
             document.getElementById(id3).innerHTML = "";
             document.getElementById(id3).style.backgroundColor = "#cccccc";
+            if (i == 2) {
+                document.getElementById(id3).style.backgroundColor = "#666666";
+            }
         }
     }
+
+    updateEffects(data);
+
+}
+
+
+//Updates the effect board with the data provided
+function updateEffects(data) {
+    var man1Effects = data["man1_effects"];
+    var man1EffectString = "Man 1: ";
+    for (var i = 0; i < man1Effects.length; i++) {
+        man1EffectString += man1Effects[i];
+        if (i != man1Effects.length - 1) {
+            man1EffectString += ", ";
+        }
+    }
+    document.getElementById("man1Effects").innerHTML = man1EffectString;
+
+    var man2Effects = data["man2_effects"];
+    var man2EffectString = "Man 2: ";
+    for (var i = 0; i < man2Effects.length; i++) {
+        man2EffectString += man2Effects[i];
+        if (i != man2Effects.length - 1) {
+            man2EffectString += ", ";
+        }
+    }
+    document.getElementById("man2Effects").innerHTML = man2EffectString;
+
+    var woman1Effects = data["woman1_effects"];
+    var woman1EffectString = "Woman 1: ";
+    for (var i = 0; i < woman1Effects.length; i++) {
+        woman1EffectString += woman1Effects[i];
+        if (i != woman1Effects.length - 1) {
+            woman1EffectString += ", ";
+        }
+    }
+    document.getElementById("woman1Effects").innerHTML = woman1EffectString;
+
+    var woman2Effects = data["woman2_effects"];
+    var woman2EffectString = "Woman 2: ";
+    for (var i = 0; i < woman2Effects.length; i++) {
+        woman2EffectString += woman2Effects[i];
+        if (i != woman2Effects.length - 1) {
+            woman2EffectString += ", ";
+        }
+    }
+    document.getElementById("woman2Effects").innerHTML = woman2EffectString;
+}
+
+// Updates the two discard pile size categories
+function updateDeckSizes(data) {
+    var zombieString = "Zombie Discard Pile Size: <strong>" + data["zombie_discard_size"] + "</strong>";
+    document.getElementById("zombieSize").innerHTML = zombieString;
+
+    var doctorString = "Doctor Discard Pile Size: <strong>" + data["doctor_discard_size"] + "</strong";
+    document.getElementById("doctorSize").innerHTML = doctorString;
+
+    var zombieString2 = "Zombie Deck Size: <strong>" + data["zombie_deck_size"] + "</strong>";
+    document.getElementById("zombieDeckSize").innerHTML = zombieString2;
+
+    var doctorString2 = "Doctor Deck Size: <strong>" + data["doctor_deck_size"] + "</strong>";
+    document.getElementById("doctorDeckSize").innerHTML = doctorString2;
 }
 
 function clearStatuses() {
@@ -397,6 +503,7 @@ function hideShowGame() {
     document.getElementById("waitMessage").style.display = "none";
     document.getElementById("playTable").style.display = "block";
     document.getElementById("humanTable").style.display = "block";
+    document.getElementById("effectTable").style.display = "block";
     document.getElementById("playerInfo").style.display = "block";
 
     document.getElementById("gameHeading").style.display = "block";
