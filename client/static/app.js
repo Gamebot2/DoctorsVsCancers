@@ -22,7 +22,7 @@ function enterGame() {
     var username = document.getElementById("userName").value;
     playerName = username;
     console.log(username);
-    var url = "http://127.0.0.1:5000/entergame?name=" + username;
+    var url = "/entergame?name=" + username;
 
     $.ajax({
         type: 'POST',
@@ -39,7 +39,7 @@ function enterGame() {
     var id = setInterval(checkGame, 2000);
 
     function checkGame() {
-        var checkURL = "http://127.0.0.1:5000/checkgame";
+        var checkURL = "/checkgame";
         $.ajax({
             type: 'GET',
             crossDomain: true,
@@ -51,7 +51,7 @@ function enterGame() {
                 } else {
                     clearInterval(id);
                     console.log("Beginning the game!")
-                    var initURL = "http://127.0.0.1:5000/initgame?playerId=" + globalPlayerId;
+                    var initURL = "/initgame?playerId=" + globalPlayerId;
                     $.ajax({
                         type: 'GET',
                         crossDomain: true,
@@ -84,7 +84,7 @@ function enterGame() {
 function endTurn() {
     clearStatuses();
     playedCards = 0;
-    var endTurnURL = "http://127.0.0.1:5000/endmyturn?playerId=" + globalPlayerId;
+    var endTurnURL = "/endmyturn?playerId=" + globalPlayerId;
     $.ajax({
         type: 'GET',
         crossDomain: true,
@@ -106,7 +106,7 @@ function waitForTurn() {
     var id = setInterval(checkForTurn, 2500);
 
     function checkForTurn() {
-        var checkURL = "http://127.0.0.1:5000/checkmyturn?playerId=" + globalPlayerId;
+        var checkURL = "/checkmyturn?playerId=" + globalPlayerId;
         $.ajax({
             type: 'GET',
             crossDomain: true,
@@ -247,7 +247,7 @@ function returnNoOptions() {
 }
 
 function sendPlayRequest(cardId, humanCardId, specifier, cardIndex) {
-    var playURL = "http://127.0.0.1:5000/playcard?playerId=" + globalPlayerId + "&cardId=" + cardId + "&humanCardId=" + humanCardId + "&specifier=" + specifier;
+    var playURL = "/playcard?playerId=" + globalPlayerId + "&cardId=" + cardId + "&humanCardId=" + humanCardId + "&specifier=" + specifier;
     $.ajax({
         type: 'POST',
         crossDomain: true,
@@ -288,7 +288,7 @@ function discardCard(cardIndex) {
     var card = playerDeck[cardIndex];
     var cardId = card[0];
 
-    var discardURL = "http://127.0.0.1:5000/discardcard?playerId=" + globalPlayerId + "&cardId=" + cardId;
+    var discardURL = "/discardcard?playerId=" + globalPlayerId + "&cardId=" + cardId;
     console.log("Discard URL: " + discardURL);
     $.ajax({
         type: 'POST',
