@@ -1,5 +1,5 @@
 class Card:
-    def __init__(self, id, name, code, major_type, minor_type, phase, description, notes, point_effect, options, blocked_cards, effect_message):
+    def __init__(self, id, name, code, major_type, minor_type, phase, description, notes, point_effect, options, blocked_cards, effect_message, attacks_treated, non_hereditary):
         self.id = id
         self.name = name
         self.code = code
@@ -12,6 +12,8 @@ class Card:
         self.options = options
         self.blocked_cards = blocked_cards
         self.effect_message = effect_message
+        self.attacks_treated = attacks_treated
+        self.non_hereditary = non_hereditary
         
 
     def __str__(self):

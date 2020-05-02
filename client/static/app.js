@@ -7,6 +7,8 @@ var playerDeck;
 var playedCards = 0;
 var playerName = "";
 
+var printCards = true;
+
 var cancerCodeMap = {
     "Lung": "L",
     "Breast": "B",
@@ -15,7 +17,7 @@ var cancerCodeMap = {
     "Pancreatic": "N",
     "Mouth": "M",
     "Uterus/Ovary": "U",
-    "Cervical": "C"
+    "Cervical": "R"
 }
 
 function enterGame() {
@@ -338,6 +340,16 @@ function updateBoard(data) {
     document.getElementById("card5Desc").innerHTML = deck[4][2];
     document.getElementById("card6Desc").innerHTML = deck[5][2];
 
+    //Populate the card types
+    for (var i = 1; i <= 6; i++) {
+        var type = "card" + i + "Type";
+        document.getElementById(type).innerHTML = deck[i - 1][4];
+
+        var titleId = "card" + i + "Title";
+        colorIdByType(titleId, deck[i - 1][4]);
+    }
+
+
     //Style card color depending on playerType
     var playerType = data["player_type"]
     setColors(playerType);
@@ -406,7 +418,30 @@ function updateBoardNotDeck(data) {
     }
 
     updateEffects(data);
+    updateCardNames(data);
 
+}
+
+//Colors the element with titleId using the minor type as a conditional
+function colorIdByType(titleId, minor_type) {
+    var color = "";
+    if (minor_type == "MUTAGEN-CELL FACTOR") {
+        color = "#ff0000";
+    } else if (minor_type == "MUTAGEN-HUMAN FACTOR") {
+        color = "00ff00";
+    } else if (minor_type == "MAJOR ATTACK") {
+        color = "0000ff";
+    } else if (minor_type == "INDIRECT ATTACK") {
+        color = "ff00ff";
+    }
+
+    if (minor_type == "PRE-EMPTION") {
+        color = "ff0000";
+    } else if (minor_type == "TREATMENT") {
+        color = "0000ff";
+    }
+
+    document.getElementById(titleId).style.color = color;
 }
 
 
@@ -451,6 +486,16 @@ function updateEffects(data) {
         }
     }
     document.getElementById("woman2Effects").innerHTML = woman2EffectString;
+}
+
+// Updates the card names divs with the given data
+function updateCardNames(data) {
+    if (printCards) {
+        document.getElementById("man1Cards").innerHTML = data["man1_cards"];
+        document.getElementById("man2Cards").innerHTML = data["man2_cards"];
+        document.getElementById("woman1Cards").innerHTML = data["woman1_cards"];
+        document.getElementById("woman2Cards").innerHTML = data["woman2_cards"];
+    }
 }
 
 // Updates the two discard pile size categories
