@@ -3,6 +3,7 @@ from game import Game
 from player import Player
 from flask_cors import CORS
 import os
+import random
 
 app = Flask(__name__, static_url_path='/static', static_folder=os.path.join("../","client","static"))
 CORS(app)
@@ -15,6 +16,10 @@ games_started = []
 @app.route('/', methods=['GET'])
 def render_index():
     return send_file(os.path.join("../","client","index.html"))
+
+@app.route('/background')
+def get_background():
+    return send_file(os.path.join("../","client","assets","homescreenbackground.png"))
 
 # Adds a new player to the lobby (requires the url parameter to start the game for)
 @app.route('/entergame', methods = ['POST'])
@@ -34,6 +39,7 @@ def start_game():
     if(len(players)%2 == 1): 
         return "Odd players!"
 
+    # random.shuffle(players)
     for i in range(0, len(players)):
         if i % 2 == 0:
             player1 = players[i]
@@ -72,7 +78,7 @@ def init_game():
         client_state["is_turn"] = 1
     else:
         client_state["is_turn"] = 0
-    return jsonify(client_state)
+    return client_state
 
 # Method for clients to repeatedly poll to see if it's their turn yet
 @app.route('/checkmyturn')
@@ -100,7 +106,6 @@ def end_turn():
     game.switch_player()
     client_state = game.get_client_state(player_id)
     client_state['success'] = 1
-    # print(client_state)
     return client_state
 
 # Client application is playing a card: need to process the card played

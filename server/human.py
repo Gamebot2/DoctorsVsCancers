@@ -61,7 +61,6 @@ class Human:
         if card_id >= 108 and card_id <= 114:
             if self.about_to_die == 1:
                 self.about_to_die = 0
-                self.effects.remove("About to die!!!")
         for i in range(len(self.attacks)):
             attack = self.attacks[i]
             if attack.name == name:
@@ -106,7 +105,6 @@ class Human:
     def remove_attack_by_specifier(self, specifier):
         if self.about_to_die == 1:
             self.about_to_die = 0
-            self.effects.remove("About to die!!!")
         for i in range(len(self.attacks)):
             attack = self.attacks[i]
             if attack.specifier == specifier:
@@ -124,14 +122,22 @@ class Human:
     
     def reset_effects(self):
         self.effects.clear()
+        if self.dead == 1:
+            self.effects.append("Dead")
+            return
+
         for card in self.cards:
             if not card.effect_message == "":
                 self.effects.append(card.effect_message)
 
+        if self.about_to_die == 1:
+            self.effects.append("About to Die!!!")
+            return
+
         for i in range(len(self.cancer_points)):
             if self.cancer_points[i] >= 4:
                 return
-        self.effects.append("Healthy")
+        self.effects.insert(0, "Healthy")
 
     
     # Resets the blocked cards to all cards blocked by cards that are on the human

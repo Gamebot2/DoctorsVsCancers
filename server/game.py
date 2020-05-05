@@ -26,13 +26,15 @@ class Game:
         self.zombie_reshuffled = 0
         self.doctor_reshuffled = 0
 
+        self.winner = -1
+
         self.humans = []
         self.humans.append(Human(0, "Man 1"))
         self.humans.append(Human(1, "Man 2"))
         self.humans.append(Human(2, "Woman 1"))
         self.humans.append(Human(3, "Woman 2"))
         
-        self.spec_map = {"L":"Lung Cancer", "B":"Breast Cancer","P":"Prostate Cancer","C":"Colon Cancer","N":"Pancreatic Cancer","M":"Mouth/Throat Cancer", "U":"Uterus/Ovary Cancer","R":"Cervical Cancer"}
+        self.spec_map = {"L":"Lung Cancer", "B":"Breast Cancer","P":"Prostate Cancer","C":"Colon Cancer","N":"Pancreatic Cancer","M":"Mouth Cancer", "U":"Uterus/Ovary Cancer","R":"Cervical Cancer"}
         self.index_map = {"L": 0, "B": 1, "P": 2, "C": 3, "N": 4, "M": 5, "U": 6, "R":7}
         self.name_map = {"L": "Lung", "B": "Breast", "P": "Prostate", "C": "Colon", "N": "Pancreatic", "M": "Mouth", "U": "Uterus/Ovary", "R":"Cervical"}
 
@@ -77,7 +79,6 @@ class Game:
         self.cancer_deck.append(Card(17, "Uterus/Ovary Cancer", "BUT", "Base", "Cancer", 0, "", "", 0, [], [], "Has Uterus/Ovary Cancer", [], 0))
         self.cancer_deck.append(Card(18, "Cervical Cancer", "BCR", "Base", "Cancer", 0, "", "", 0, [], [], "Has Cervical Cancer", [], 0))
 
-        # TODO: Add the Zombie Deck Here
         self.zombie_deck.append(Card(19, "BRCA1 germline (inherited)", "Z1B1G", "Zombie", "MUTAGEN-CELL FACTOR", 1, "2 points towards breast or ovary", "BO", 2, ["Breast", "Uterus/Ovary"], [], "", [], 1))
         self.zombie_deck.append(Card(20, "BRCA2 germline (inherited)", "Z1B2G", "Zombie", "MUTAGEN-CELL FACTOR", 1, "2 points towards breast, prostate, or pancreas", "BPN", 2, ["Breast", "Prostate", "Pancreatic"], [], "", [], 1))
         self.zombie_deck.append(Card(21, "p53 germline (inherited)", "Z1PG", "Zombie", "MUTAGEN-CELL FACTOR", 1, "2 points towards breast", "B", 2, ["Breast"], [], "", [], 1))
@@ -134,7 +135,6 @@ class Game:
         self.zombie_deck.append(Card(68, "Lack of Healthcare", "Z2HC1", "Zombie", "INDIRECT ATTACK", 2, "No treatment until better", "", 0, [], list(range(88, 115)), "No treatment until better", [], 0))
         self.zombie_deck.append(Card(69, "Lack of Healthcare", "Z2HC2", "Zombie", "INDIRECT ATTACK", 2, "No treatment until better", "", 0, [], list(range(88, 115)), "No treatment until better", [], 0))
 
-        # TODO: Add the Doctor Deck Here
         self.doctor_deck.append(Card(70, "Change your diet!", "D1DT1", "Doctor", "PRE-EMPTION", 1, "Blocks too much food", "", 0, [], [36, 37], "Can't eat too much!", [], 0))
         self.doctor_deck.append(Card(71, "Change your diet!", "D1DT2", "Doctor", "PRE-EMPTION", 1, "Blocks too much food", "", 0, [], [36, 37], "Can't eat too much!", [], 0))
         self.doctor_deck.append(Card(72, "Exercise!", "D1EX1", "Doctor", "PRE-EMPTION", 1, "Blocks too much food", "", 0, [], [36, 37], "Can't eat too much!", [], 0))
@@ -154,7 +154,6 @@ class Game:
         self.doctor_deck.append(Card(86, "Colonoscopy", "D1CL2", "Doctor", "PRE-EMPTION", 1, "Minus 2 points towards colon cancer", "C", 2, ["Colon"], [], "", [], 0))
         # self.doctor_deck.append(Card(87, "Genetic testing", "D1GT", "Doctor", "PRE-EMPTION", 1, "Show all cell factor cards", "", 0, [], [], "", []))
         
-        # TODO: Add cancer treatment cards here
         # Attacks treated for these cards will point towards the cancers they treat instead
         self.doctor_deck.append(Card(88, "Lumpectomy and radiation", "D2LU", "Doctor", "TREATMENT", 2, "Cures breast cancer", "B", 0, ["Breast"], [], "", [], 0))
         self.doctor_deck.append(Card(89, "Mastectomy", "D2MS", "Doctor", "TREATMENT", 2, "Cures breast cancer", "B", 0, ["Breast"], [], "", [], 0))
@@ -198,14 +197,12 @@ class Game:
 
         self.init_master_deck()
 
-        # TODO: Add the player 1 deck from Zombie w/ shuffling
         random.shuffle(self.zombie_deck)
         for i in range(6):
             card = self.zombie_deck[i]
             self.player1_deck.append(card)
             self.zombie_deck.remove(card)
 
-        # TODO: Add the player 2 deck from Doctor w/ shuffling
         random.shuffle(self.doctor_deck)
         for i in range(6):
             card = self.doctor_deck[i]
@@ -246,10 +243,17 @@ class Game:
         if self.humans[human_card_id].whipple == 1 and self.get_card_by_id(card_id).type == "TREATMENT":
             return "Cannot treat: they've had the Whipple procedure!"
 
+        card = self.get_card_by_id(card_id)
+        if card.effect_message == "":
+            card.effect_message = card.name
+
         if card_id >= 19 and card_id <= 47:
             # ----------- CANCER CARDS THAT ADD POINTS FOR SPECIFIC CANCERS IN PHASE 1 -------
             cancer_points = self.get_cancer_points_by_human_id(human_card_id)
             index = self.parse_specifier(specifier)
+
+            if cancer_points[index] >= 4:
+                return "Already has that cancer: attack them!"
 
             card = self.get_card_by_id(card_id)
             self.replace_card_zombie(card_id, self.humans[human_card_id].cards)
@@ -260,11 +264,14 @@ class Game:
             if card.name == "EGFR somatic (not hereditary)":
                 self.humans[human_card_id].egfr = 1
 
+
+
             cancer_points[index] = cancer_points[index] + card.point_effect
             if cancer_points[index] >= 4:
                 #Human now has that cancer baby
                 result = self.give_human_cancer(human_card_id, specifier)
                 if result == 0:
+                    cancer_points[index] = cancer_points[index] - card.point_effect
                     return "No cancer cards of this type left!"
 
         elif card_id >= 48 and card_id <= 61:
@@ -272,6 +279,9 @@ class Game:
             # First need to return error if human doesn't have cancer specified
             if not self.check_human_cancer(human_card_id, specifier):
                 return "This human does not have that cancer!"
+
+            if self.humans[human_card_id].about_to_die == 1:
+                return "Already about to die: doctors need chance to treat!"
             
             card = self.get_card_by_id(card_id)
             if card.name == "Bone Fracture" and self.humans[human_card_id].bone_metastasis == 0:
@@ -335,6 +345,9 @@ class Game:
             if not self.check_human_cancer(human_card_id, specifier):
                 return "This human does not have that cancer!"
             
+            if self.humans[human_card_id].get_major_attack_number() > 0:
+                return "Must treat major attacks before removing cancer!"
+
             #Passed bars of entry: time to remove the cancer associated w/ specifier
             if card_id == 94:
                 self.humans[human_card_id].whipple = 1
@@ -427,15 +440,17 @@ class Game:
         #Deck is empty: need to get stuff from discard pile and put it back in
         if len(self.zombie_deck) == 0:
             self.zombie_deck.extend(self.zombie_discard_pile)
+            random.shuffle(self.zombie_deck)
             self.zombie_discard_pile.clear()
             self.zombie_reshuffled = self.zombie_reshuffled + 1
             print("Reshuffled " + str(self.zombie_reshuffled) + " times")
+            if self.zombie_reshuffled == 2:
+                self.winner = self.player2
 
         new_card = self.zombie_deck[0]
         old_card_index = self.player1_deck.index(card)
         self.player1_deck[old_card_index] = new_card
 
-        #TODO: Handle the case when zombie_deck is empty: either reshuffle or end game
         play_card_where.append(card)
         self.zombie_deck.remove(new_card)
 
@@ -446,6 +461,7 @@ class Game:
         #Deck is empty: need to get stuff from discard pile and put it back in
         if len(self.doctor_deck) == 0:
             self.doctor_deck.extend(self.doctor_discard_pile)
+            random.shuffle(self.doctor_deck)
             self.doctor_discard_pile.clear()
             self.doctor_reshuffled = self.doctor_reshuffled + 1
             print("Reshuffled doctor deck " + str(self.doctor_reshuffled) + " times")
@@ -472,11 +488,20 @@ class Game:
 
 
     def kill_human(self, human_card_id):
-        effects = self.get_effects_by_human_id(human_card_id)
-        effects.clear()
-        effects.append("Dead")
         self.humans[human_card_id].about_to_die = -1
         self.humans[human_card_id].dead = 1
+
+        for card in self.humans[human_card_id].cards:
+            self.trash_pile.append(card)
+
+        self.humans[human_card_id].cards.clear()
+
+        dead_count = 0
+        for i in range(len(self.humans)):
+            if self.check_dead(i):
+                dead_count = dead_count + 1
+        if dead_count == len(self.humans):
+            self.winner = self.player1
     
     def check_dead(self, human_card_id):
         return self.humans[human_card_id].dead == 1
@@ -484,6 +509,9 @@ class Game:
     def get_client_state(self, player_id):
         client_state = {}
         player_deck = []
+
+        for i in range(len(self.humans)):
+            self.humans[i].reset_effects()
 
         if player_id == self.player1:
             #Need to return the zombie state
@@ -519,28 +547,10 @@ class Game:
 
         client_state["cancer_cards_not_played"] = to_return
 
-        man1_card_names = []
-        for card in self.humans[0].cards:
-            man1_card_names.append(card.name)
-        client_state["man1_cards"] = man1_card_names
-
-        man2_card_names = []
-        for card in self.humans[1].cards:
-            man2_card_names.append(card.name)
-        client_state["man2_cards"] = man2_card_names
-
-        woman1_card_names = []
-        for card in self.humans[2].cards:
-            woman1_card_names.append(card.name)
-        client_state["woman1_cards"] = woman1_card_names
-
-        woman2_card_names = []
-        for card in self.humans[3].cards:
-            woman2_card_names.append(card.name)
-        client_state["woman2_cards"] = woman2_card_names
-
         client_state["zombie_deck_size"] = len(self.zombie_deck)
         client_state["doctor_deck_size"] = len(self.doctor_deck)
+
+        client_state["winner"] = self.winner
 
         # TODO: insert more things to return here
         return client_state
