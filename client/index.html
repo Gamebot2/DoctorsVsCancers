@@ -2,247 +2,268 @@
 
 <head>
     <title>Cancer Zombie Attack!</title>
-    <link rel="stylesheet" type="text/css" href="./static/style.css">
     <link rel="stylesheet" type="text/css" href="./static/bootstrap/css/bootstrap.min.css">
+    <link rel="stylesheet" type="text/css" href="./static/style.css">
     <script src="./static/app.js"></script>
 </head>
 
 <body>
-    <form id="enterForm">
-        <label for="name">Name:</label><br>
-        <input type="text" id="userName" name="name"><br>
-        <button type="button" value="submit" onclick="enterGame()">Submit</button>
-    </form>
-    <h4 id="waitMessage">Please wait for instructor to start the game.</h4>
-    <h1 id="gameHeading" style="display:none;text-align: center;">Cancer Zombie Attack!</h1>
-    <h2 id="playerInfo" style="text-align: center;"></h2>
-    <br>
-    <table id="playTable">
-        <tr>
-            <td class="labelCol"><button type="button" id="endTurnButton" onclick="endTurn()">End Turn</button></td>
-            <td class="buttonCol"><button type="button" id="card1Button" value="card1" onclick="playCard(0)" class="cardButton">Play Card 1</button></td>
-            <td class="buttonCol"><button type="button" id="card2Button" value="card2" onclick="playCard(1)" class="cardButton">Play Card 2</button></td>
-            <td class="buttonCol"><button type="button" id="card3Button" value="card3" onclick="playCard(2)" class="cardButton">Play Card 3</button></td>
-            <td class="buttonCol"><button type="button" id="card4Button" value="card4" onclick="playCard(3)" class="cardButton">Play Card 4</button></td>
-            <td class="buttonCol"><button type="button" id="card5Button" value="card5" onclick="playCard(4)" class="cardButton">Play Card 5</button></td>
-            <td class="buttonCol"><button type="button" id="card6Button" value="card6" onclick="playCard(5)" class="cardButton">Play Card 6</button></td>
-        </tr>
-        <tr>
-            <td class="labelCol"></td>
-            <td class="buttonCol"><button type="button" id="card1Discard" value="card1" onclick="discardCard(0)" class="cardButton">Discard Card 1</button></td>
-            <td class="buttonCol"><button type="button" id="card2Discard" value="card2" onclick="discardCard(1)" class="cardButton">Discard Card 2</button></td>
-            <td class="buttonCol"><button type="button" id="card3Discard" value="card3" onclick="discardCard(2)" class="cardButton">Discard Card 3</button></td>
-            <td class="buttonCol"><button type="button" id="card4Discard" value="card4" onclick="discardCard(3)" class="cardButton">Discard Card 4</button></td>
-            <td class="buttonCol"><button type="button" id="card5Discard" value="card5" onclick="discardCard(4)" class="cardButton">Discard Card 5</button></td>
-            <td class="buttonCol"><button type="button" id="card6Discard" value="card6" onclick="discardCard(5)" class="cardButton">Discard Card 6</button></td>
-        </tr>
-        <tr>
-            <td class="labelCol">Card Title:</td>
-            <td class="buttonCol">
-                <p id="card1Title"></p>
-            </td>
-            <td class="buttonCol">
-                <p id="card2Title"></p>
-            </td>
-            <td class="buttonCol">
-                <p id="card3Title"></p>
-            </td>
-            <td class="buttonCol">
-                <p id="card4Title"></p>
-            </td>
-            <td class="buttonCol">
-                <p id="card5Title"></p>
-            </td>
-            <td class="buttonCol">
-                <p id="card6Title"></p>
-            </td>
-        </tr>
-        <tr id="cardDescriptions">
-            <td class="labelCol">Card Description: </td>
-            <td class="buttonCol">
-                <p id="card1Desc"></p>
-            </td>
-            <td class="buttonCol">
-                <p id="card2Desc"></p>
-            </td>
-            <td class="buttonCol">
-                <p id="card3Desc"></p>
-            </td>
-            <td class="buttonCol">
-                <p id="card4Desc"></p>
-            </td>
-            <td class="buttonCol">
-                <p id="card5Desc"></p>
-            </td>
-            <td class="buttonCol">
-                <p id="card6Desc"></p>
-            </td>
-        </tr>
-        <tr id="cardTypes">
-            <td class="labelCol">Card Type: </td>
-            <td class="buttonCol">
-                <p id="card1Type"></p>
-            </td>
-            <td class="buttonCol">
-                <p id="card2Type"></p>
-            </td>
-            <td class="buttonCol">
-                <p id="card3Type"></p>
-            </td>
-            <td class="buttonCol">
-                <p id="card4Type"></p>
-            </td>
-            <td class="buttonCol">
-                <p id="card5Type"></p>
-            </td>
-            <td class="buttonCol">
-                <p id="card6Type"></p>
-            </td>
-        </tr>
-        <tr>
-            <td class="labelCol">Status: </td>
-            <td class="buttonCol">
-                <p id="card1Status"></p>
-            </td>
-            <td class="buttonCol">
-                <p id="card2Status"></p>
-            </td>
-            <td class="buttonCol">
-                <p id="card3Status"></p>
-            </td>
-            <td class="buttonCol">
-                <p id="card4Status"></p>
-            </td>
-            <td class="buttonCol">
-                <p id="card5Status"></p>
-            </td>
-            <td class="buttonCol">
-                <p id="card6Status"></p>
-            </td>
-        </tr>
-        <tr>
-            <td class="labelCol"></td>
-            <td class="buttonCol"></td>
-            <td class="buttonCol"></td>
-            <td class="buttonCol">
-                <!--button type="button" id="endTurnButton" onclick="endTurn()">End Turn</button-->
-            </td>
-            <td class="buttonCol"></td>
-            <td class="buttonCol"></td>
-            <td class="buttonCol"></td>
-        </tr>
-    </table>
+    <div id="homeScreen">
+        <form id="enterForm">
+            <label for="name">Enter your name:</label><br>
+            <input type="text" id="userName" name="name"><br>
+            <button id="submitButton" type="button" value="submit" onclick="enterGame()">Submit</button>
+        </form>
+        <h4 id="waitMessage">Please wait for instructor to start the game.</h4>
+    </div>
 
-    <br>
-    <br>
-    <br>
-    <table id="humanTable">
-        <tr>
-            <td class="rowLabel">Human:</td>
-            <td class="humanCol" style="font-weight: bolder;">Man 1</td>
-            <td class="humanCol" style="font-weight: bolder;">Man 2</td>
-            <td class="humanCol" style="font-weight: bolder;">Woman 1</td>
-            <td class="humanCol" style="font-weight: bolder;">Woman 2</td>
-            <td class="spacer"></td>
-        </tr>
-        <!-- ID SCHEME: <human_card_index>points<cancer_index>-->
-        <tr>
-            <td class="rowLabel">Lung: </td>
-            <td class="humanCol" id="0points0"></td>
-            <td class="humanCol" id="1points0"></td>
-            <td class="humanCol" id="2points0"></td>
-            <td class="humanCol" id="3points0"></td>
-        </tr>
-        <tr>
-            <td class="rowLabel">Breast:</td>
-            <td class="humanCol" id="0points1"></td>
-            <td class="humanCol" id="1points1"></td>
-            <td class="humanCol" id="2points1"></td>
-            <td class="humanCol" id="3points1"></td>
-        </tr>
-        <tr>
-            <td class="rowLabel">Prostate: </td>
-            <td class="humanCol" id="0points2"></td>
-            <td class="humanCol" id="1points2"></td>
-            <td class="humanCol" id="2points2"></td>
-            <td class="humanCol" id="3points2"></td>
-        </tr>
-        <tr>
-            <td class="rowLabel">Colon: </td>
-            <td class="humanCol" id="0points3"></td>
-            <td class="humanCol" id="1points3"></td>
-            <td class="humanCol" id="2points3"></td>
-            <td class="humanCol" id="3points3"></td>
-        </tr>
-        <tr>
-            <td class="rowLabel">Pancreatic: </td>
-            <td class="humanCol" id="0points4"></td>
-            <td class="humanCol" id="1points4"></td>
-            <td class="humanCol" id="2points4"></td>
-            <td class="humanCol" id="3points4"></td>
-        </tr>
-        <tr>
-            <td class="rowLabel">Mouth: </td>
-            <td class="humanCol" id="0points5"></td>
-            <td class="humanCol" id="1points5"></td>
-            <td class="humanCol" id="2points5"></td>
-            <td class="humanCol" id="3points5"></td>
-        </tr>
-        <tr>
-            <td class="rowLabel">Uterus: </td>
-            <td class="humanCol" id="0points6"></td>
-            <td class="humanCol" id="1points6"></td>
-            <td class="humanCol" id="2points6"></td>
-            <td class="humanCol" id="3points6"></td>
-        </tr>
-        <tr>
-            <td class="rowLabel">Cervical: </td>
-            <td class="humanCol" id="0points7"></td>
-            <td class="humanCol" id="1points7"></td>
-            <td class="humanCol" id="2points7"></td>
-            <td class="humanCol" id="3points7"></td>
-        </tr>
-    </table>
+    <div id="gameBody">
 
-    <table id="effectTable">
-        <tr>
-            <td id="man1Effects">Man 1: Healthy</td>
-        </tr>
-        <tr>
-            <td id="man2Effects">Man 2: Healthy</td>
-        </tr>
-        <tr>
-            <td id="woman1Effects">Woman 1: Healthy</td>
-        </tr>
-        <tr>
-            <td id="woman2Effects">Woman 2: Healthy</td>
-        </tr>
-        <tr>
-            <td style="height:1em;"></td>
-        </tr>
-        <tr>
-            <td id="zombieDeckSize">Zombie Deck Size: <strong>0</strong></td>
-        </tr>
-        <tr>
-            <td id="doctorDeckSize">Doctor Deck Size: <strong>0</strong></td>
-        </tr>
-        <tr>
-            <td style="height:1em;"></td>
-        </tr>
-        <tr>
-            <td id="zombieSize">Zombie Discard Pile Size: <strong>0</strong></td>
-        </tr>
-        <tr>
-            <td id="doctorSize">Doctor Discard Pile Size: <strong>0</strong></td>
-        </tr>
+        <!-- WHERE THE ACTUAL GAME HTML BEGINS -->
+        <h1 id="gameHeading" style="text-align: center;">Cancer Zombie Attack!</h1>
+        <h2 id="playerInfo" style="text-align: center;"></h2>
+        <br>
+        <table id="topTable">
+            <tr>
+                <td>
+                    <table id="humanTable">
+                        <tr>
+                            <td class="rowLabel"></td>
+                            <td class="humanCol" style="font-weight: bolder;">Man 1</td>
+                            <td class="humanCol" style="font-weight: bolder;">Man 2</td>
+                            <td class="humanCol" style="font-weight: bolder;">Woman 1</td>
+                            <td class="humanCol" style="font-weight: bolder;">Woman 2</td>
+                        </tr>
+                        <!-- ID SCHEME: <human_card_index>points<cancer_index>-->
+                        <tr>
+                            <td class="rowLabel">Lung: </td>
+                            <td class="humanCol" id="0points0"></td>
+                            <td class="humanCol" id="1points0"></td>
+                            <td class="humanCol" id="2points0"></td>
+                            <td class="humanCol" id="3points0"></td>
+                            <div class="spacer"></div>
+                        </tr>
+                        <tr>
+                            <td class="rowLabel">Breast:</td>
+                            <td class="humanCol" id="0points1"></td>
+                            <td class="humanCol" id="1points1"></td>
+                            <td class="humanCol" id="2points1"></td>
+                            <td class="humanCol" id="3points1"></td>
+                        </tr>
+                        <tr>
+                            <td class="rowLabel">Prostate: </td>
+                            <td class="humanCol" id="0points2"></td>
+                            <td class="humanCol" id="1points2"></td>
+                            <td class="humanCol" id="2points2"></td>
+                            <td class="humanCol" id="3points2"></td>
+                        </tr>
+                        <tr>
+                            <td class="rowLabel">Colon: </td>
+                            <td class="humanCol" id="0points3"></td>
+                            <td class="humanCol" id="1points3"></td>
+                            <td class="humanCol" id="2points3"></td>
+                            <td class="humanCol" id="3points3"></td>
+                        </tr>
+                        <tr>
+                            <td class="rowLabel">Pancreatic: </td>
+                            <td class="humanCol" id="0points4"></td>
+                            <td class="humanCol" id="1points4"></td>
+                            <td class="humanCol" id="2points4"></td>
+                            <td class="humanCol" id="3points4"></td>
+                        </tr>
+                        <tr>
+                            <td class="rowLabel">Mouth: </td>
+                            <td class="humanCol" id="0points5"></td>
+                            <td class="humanCol" id="1points5"></td>
+                            <td class="humanCol" id="2points5"></td>
+                            <td class="humanCol" id="3points5"></td>
+                        </tr>
+                        <tr>
+                            <td class="rowLabel">Uterus: </td>
+                            <td class="humanCol" id="0points6"></td>
+                            <td class="humanCol" id="1points6"></td>
+                            <td class="humanCol" id="2points6"></td>
+                            <td class="humanCol" id="3points6"></td>
+                        </tr>
+                        <tr>
+                            <td class="rowLabel">Cervical: </td>
+                            <td class="humanCol" id="0points7"></td>
+                            <td class="humanCol" id="1points7"></td>
+                            <td class="humanCol" id="2points7"></td>
+                            <td class="humanCol" id="3points7"></td>
+                        </tr>
+                    </table>
+                </td>
+                <td style="color: white; width:5vw;">
 
-    </table>
-    <br />
+                </td>
+                <td id="playTableCol">
+                    <table id="playTable">
+                        <tr>
+                            <td class="buttonCol"><button type="button" id="card1Button" value="card1" onclick="playCard(0)" class="cardButton">Play Card 1</button></td>
+                            <td class="buttonCol"><button type="button" id="card2Button" value="card2" onclick="playCard(1)" class="cardButton">Play Card 2</button></td>
+                            <td class="buttonCol"><button type="button" id="card3Button" value="card3" onclick="playCard(2)" class="cardButton">Play Card 3</button></td>
+                            <td class="buttonCol"><button type="button" id="card4Button" value="card4" onclick="playCard(3)" class="cardButton">Play Card 4</button></td>
+                            <td class="buttonCol"><button type="button" id="card5Button" value="card5" onclick="playCard(4)" class="cardButton">Play Card 5</button></td>
+                            <td class="buttonCol"><button type="button" id="card6Button" value="card6" onclick="playCard(5)" class="cardButton">Play Card 6</button></td>
+                        </tr>
+                        <tr>
 
-    <p id="man1Cards"></p><br>
-    <p id="man2Cards"></p><br>
-    <p id="woman1Cards"></p><br>
-    <p id="woman2Cards"></p><br>
+                            <td class="buttonCol"><button type="button" id="card1Discard" value="card1" onclick="discardCard(0)" class="cardButton">Discard Card 1</button></td>
+                            <td class="buttonCol"><button type="button" id="card2Discard" value="card2" onclick="discardCard(1)" class="cardButton">Discard Card 2</button></td>
+                            <td class="buttonCol"><button type="button" id="card3Discard" value="card3" onclick="discardCard(2)" class="cardButton">Discard Card 3</button></td>
+                            <td class="buttonCol"><button type="button" id="card4Discard" value="card4" onclick="discardCard(3)" class="cardButton">Discard Card 4</button></td>
+                            <td class="buttonCol"><button type="button" id="card5Discard" value="card5" onclick="discardCard(4)" class="cardButton">Discard Card 5</button></td>
+                            <td class="buttonCol"><button type="button" id="card6Discard" value="card6" onclick="discardCard(5)" class="cardButton">Discard Card 6</button></td>
+                        </tr>
+                        <tr>
+                            <!--td class="labelCol">Card Title:</td-->
+                            <td class="buttonCol">
+                                <p id="card1Title"></p>
+                            </td>
+                            <td class="buttonCol">
+                                <p id="card2Title"></p>
+                            </td>
+                            <td class="buttonCol">
+                                <p id="card3Title"></p>
+                            </td>
+                            <td class="buttonCol">
+                                <p id="card4Title"></p>
+                            </td>
+                            <td class="buttonCol">
+                                <p id="card5Title"></p>
+                            </td>
+                            <td class="buttonCol">
+                                <p id="card6Title"></p>
+                            </td>
+                        </tr>
+                        <tr id="cardDescriptions">
+                            <!--td class="labelCol">Card Description: </td-->
+                            <td class="buttonCol">
+                                <p id="card1Desc"></p>
+                            </td>
+                            <td class="buttonCol">
+                                <p id="card2Desc"></p>
+                            </td>
+                            <td class="buttonCol">
+                                <p id="card3Desc"></p>
+                            </td>
+                            <td class="buttonCol">
+                                <p id="card4Desc"></p>
+                            </td>
+                            <td class="buttonCol">
+                                <p id="card5Desc"></p>
+                            </td>
+                            <td class="buttonCol">
+                                <p id="card6Desc"></p>
+                            </td>
+                        </tr>
+                        <tr id="cardTypes">
+                            <!--td class="labelCol">Card Type: </td-->
+                            <td class="buttonCol">
+                                <p id="card1Type"></p>
+                            </td>
+                            <td class="buttonCol">
+                                <p id="card2Type"></p>
+                            </td>
+                            <td class="buttonCol">
+                                <p id="card3Type"></p>
+                            </td>
+                            <td class="buttonCol">
+                                <p id="card4Type"></p>
+                            </td>
+                            <td class="buttonCol">
+                                <p id="card5Type"></p>
+                            </td>
+                            <td class="buttonCol">
+                                <p id="card6Type"></p>
+                            </td>
+                        </tr>
+                        <tr id="statusRow">
+                            <!--td class="labelCol">Status: </td-->
+                            <td class="statusCol">
+                                <p id="card1Status"></p>
+                            </td>
+                            <td class="statusCol">
+                                <p id="card2Status"></p>
+                            </td>
+                            <td class="statusCol">
+                                <p id="card3Status"></p>
+                            </td>
+                            <td class="statusCol">
+                                <p id="card4Status"></p>
+                            </td>
+                            <td class="statusCol">
+                                <p id="card5Status"></p>
+                            </td>
+                            <td class="statusCol">
+                                <p id="card6Status"></p>
+                            </td>
+                            <!--td class="labelCol"><button type="button" id="endTurnButton" onclick="endTurn()">End
+                                Turn</button></td-->
+                        </tr>
+                        <tr>
+                            <td class=""></td>
+                            <td class=""></td>
+                            <td class=""></td>
+                            <td class=""></td>
+                            <td class=""></td>
+                            <td style="">
+                                <button type="button" id="endTurnButton" onclick="endTurn()">End Turn</button>
+                            </td>
+                        </tr>
+                    </table>
+                </td>
+                <td style="color: white; width:3vw;">
+
+                </td>
+            </tr>
+        </table>
+
+
+
+
+        <div class="spacer"></div>
+
+        <div style="overflow-x:auto">
+            <p>Cards</p>
+            <p id="man1Cards" class="cardNames"></p>
+            <p id="man2Cards" class="cardNames"></p>
+            <p id="woman1Cards" class="cardNames"></p>
+            <p id="woman2Cards" class="cardNames"></p>
+        </div>
+
+        <div id="gameAnnouncement">
+            Announcements:
+        </div>
+        <div id="zombieDeckSize">
+            Zomb Deck:
+        </div>
+        <div id="doctorDeckSize">
+            Doc Deck:
+        </div>
+        <div id="zombieDiscardSize">
+            Zomb Discard:
+        </div>
+        <div id="doctorDiscardSize">
+            Doc Discard:
+        </div>
+        <div id="opponent">
+            Playing against:
+        </div>
+
+        <div class="spacer"></div>
+
+
+    </div>
+
+    <div id="victoryScreen">
+        <h1 style="padding:50vh 40vw;" id="victoryMessage">You won!</h1>
+    </div>
+
+    <div id="defeatScreen">
+        <h1 style="padding:50vh 40vw;" id="defeatMessage">You lost!</h1>
+    </div>
 
 
     <!-- JS, Bootstrap, Popper, and BootBox -->

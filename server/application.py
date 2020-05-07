@@ -8,7 +8,9 @@ import random
 app = Flask(__name__, static_url_path='/static', static_folder=os.path.join("../","client","static"))
 CORS(app)
 
-players = []  # Array of all player objects
+all_players = [] # Array of all player objects period
+players_unmatched = []  # Array of all player objects that are not yet matched
+players_matched = [] #Array of players that have been matched
 games = []  # Array that contains game objects
 games_started = []
 
@@ -24,46 +26,76 @@ def get_background():
 # Adds a new player to the lobby (requires the url parameter to start the game for)
 @app.route('/entergame', methods = ['POST'])
 def enter_game():
-    id = len(players)
+    id = getID()
     name = request.args['name']
     p = Player(id, name)
-    players.append(p)
+    all_players.append(p)
+    players_unmatched.append(p)
 
     print_players()
-    print('Player ' + str(len(players)-1) + ' has entered the game')
+    print('Player ' + str(len(all_players)-1) + ' has entered the game')
     return str(id)
 
 # Begins the game by pairing off all players and initializing the game array
 @app.route('/startgame')
 def start_game():
-    if(len(players)%2 == 1): 
+
+    if(len(players_unmatched) % 2 == 1):
         return "Odd players!"
 
+    player_names = []
+
     # random.shuffle(players)
-    for i in range(0, len(players)):
+    for i in range(0, len(players_unmatched)):
         if i % 2 == 0:
-            player1 = players[i]
-            player2 = players[i+1]
+            player1 = players_unmatched[i]
+            player2 = players_unmatched[i+1]
             g = Game(len(games), player1.id, player2.id)
+            g.set_names(player1.name, player2.name)
             games.append(g)
             print_games()
+
+            players_matched.append(player1)
+            players_matched.append(player2)
 
             # Also set Game Ids for both players
             player1.set_game_id(g.id)
             player2.set_game_id(g.id)
 
+            player_names.append(player1.name)
+            player_names.append(player2.name)
+    
+
     games_started.append('Hello')
-    return 'Starting ' + str(len(games)) + ' games. Have fun!'
+
+    matched_names = []
+    for i in range(len(players_matched)):
+        player = players_matched[i]
+        if player in players_unmatched:
+            players_unmatched.remove(player)
+        matched_names.append(player.name)
+    
+
+    return {"players_just_matched": player_names, "all_matched_players": matched_names }
 
 # Reset all games so the app can be used again
 @app.route('/reset_games')
 def reset_games():
     games_started.clear()
 
+# Player is leaving their game
+@app.route('/leavegame')
+def leave_game():
+    player_id = request.args['playerId']
+    print("LEAVING GAME: " + str(player_id))
+    return "Task failed successfully"
+
 # Checks if the games have begun yet
 @app.route('/checkgame')
 def check_game():
-    if(len(games_started) == 0):
+    player_id = request.args['playerId']
+    game = get_game(int(player_id))
+    if(game == None):
         return "False"
     else:
         return "True"
@@ -76,8 +108,10 @@ def init_game():
     client_state = game.get_client_state(player_id)
     if game.player1 == player_id:
         client_state["is_turn"] = 1
+        client_state["opponent"] = game.player2_name
     else:
         client_state["is_turn"] = 0
+        client_state["opponent"] = game.player1_name
     return client_state
 
 # Method for clients to repeatedly poll to see if it's their turn yet
@@ -137,7 +171,16 @@ def discard_card():
         return False
 
 def get_game(player_id):
-    return games[players[player_id].game_id]
+    for i in range(len(games)):
+        game = games[i]
+        if game.player1 == player_id or game.player2 == player_id:
+            return game
+
+def getID():
+    if(len(all_players) == 0):
+        return 0
+    last_player = all_players[-1]
+    return last_player.id + 1
 
 # DEBUGGING ROUTINES
 
@@ -147,8 +190,8 @@ def print_games():
 
 
 def print_players():
-    for i in range(0, len(players)):
-        print(str(players[i]))
+    for i in range(0, len(all_players)):
+        print(str(all_players[i]))
 
 
 @app.route('/testinput')

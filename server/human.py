@@ -91,7 +91,7 @@ class Human:
 
         # Reached here if we've removed non-hereditaries and cancer points is still too high
         for card in self.cards:
-            if card.phase == 1 and card.major_type == "Zombie" and short_name in card.options:
+            if card.phase == 1 and card.major_type == "Zombie" and (short_name in card.options or "Any" in card.options):
                 self.cards.remove(card)
                 self.trash.append(card)
                 self.cancer_points[index] = self.cancer_points[index] - card.point_effect

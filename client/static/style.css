@@ -1,44 +1,88 @@
 .cardButton {
-    display: none;
     width: 100%;
 }
 
-#playTable {
+.card {
     display: none;
+}
+
+.cardHeader {
+    width: 5vw;
+}
+
+#homeScreen {
+    width: 100%;
+    height: 100%;
+    text-align: center;
+    background-image: url("/background");
+    background-size: 100% 100%;
+}
+
+#cardTable {
+    width: 100%;
+}
+
+#enterForm {
+    padding: 40vh 40vw 5vw
+}
+
+#gameBody {
+    display: none;
+}
+
+#playTableCol {
+    width: 70%;
+}
+
+#humanTableCol {
+    width: 100%;
+    text-align: right;
 }
 
 #humanTable {
-    display: none;
     float: left;
+    margin-top: 0%;
+    padding-top: 0%;
 }
 
-#effectTable {
-    display: none;
-    float: left;
+td {
+    vertical-align: middle;
 }
 
-#playerInfo {
-    display: none;
+tr {
+    vertical-align: middle;
 }
+
+#effectTable {}
 
 #waitMessage {
     display: none;
 }
 
 #endTurnButton {
-    width: 80%;
+    width: 100%;
 }
 
 .labelCol {
-    width: 8%;
+    width: 5%;
     font-weight: bolder;
     text-align: left;
 }
 
 .buttonCol {
-    width: 12%;
+    width: 6%;
     font-weight: bolder;
     text-align: center;
+    border: 2px solid black;
+}
+
+.statusCol {
+    font-weight: bolder;
+    text-align: center;
+}
+
+#statusRow {
+    height: 1em;
 }
 
 #cardDescriptiosn {
@@ -47,17 +91,87 @@
 }
 
 .rowLabel {
-    width: 15%;
     font-weight: bolder;
+    text-align: right;
 }
 
 .humanCol {
-    width: 20%;
+    width: 25%;
     border-collapse: collapse;
     border: 1px solid black;
     text-align: center;
 }
 
+th {
+    width: 100%;
+}
+
 .spacer {
     width: 100%;
+    height: 35px;
+}
+
+#victoryScreen {
+    width: 100%;
+    height: 100%;
+    text-align: center;
+    display: none;
+}
+
+#defeatScreen {
+    width: 100%;
+    height: 100%;
+    text-align: center;
+    display: none;
+}
+
+.cardNames {
+    font-size: 11px;
+}
+
+#gameAnnouncement,
+#zombieDeckSize,
+#doctorDeckSize,
+#zombieDiscardSize,
+#doctorDiscardSize,
+#opponent {
+    height: 35px;
+    position: fixed;
+    bottom: 0%;
+    background-color: #ccc;
+    opacity: 1;
+    vertical-align: middle;
+    border: 1px solid black;
+    padding-left: 5px;
+}
+
+#gameAnnouncement {
+    left: 0%;
+    width: 35%;
+}
+
+#zombieDeckSize {
+    left: 35%;
+    width: 10%;
+}
+
+#doctorDeckSize {
+    left: 45%;
+    width: 10%;
+}
+
+#zombieDiscardSize {
+    left: 55%;
+    width: 10%;
+}
+
+#doctorDiscardSize {
+    left: 65%;
+    width: 10%;
+}
+
+#opponent {
+    left: 75%;
+    width: 25%;
+    text-align: center;
 }

@@ -1,13 +1,7 @@
-window.onbeforeunload = function() {
-    return "Data will be lost if you leave the page, are you sure?";
-};
-
-var globalPlayerId = 0;
+var globalPlayerId = -1;
 var playerDeck;
 var playedCards = 0;
 var playerName = "";
-
-var printCards = true;
 
 var cancerCodeMap = {
     "Lung": "L",
@@ -20,18 +14,33 @@ var cancerCodeMap = {
     "Cervical": "R"
 }
 
+window.onbeforeunload = function() {
+    return "Data will be lost if you leave the page, are you sure?";
+};
+
+window.onunload = function() {
+    var url = "/leavegame?playerId=" + this.globalPlayerId;
+    $.ajax({
+        type: 'GET',
+        crossDomain: true,
+        url: url,
+        success: function(data) {}
+    })
+}
+
+
 function enterGame() {
     var username = document.getElementById("userName").value;
     playerName = username;
-    console.log(username);
     var url = "/entergame?name=" + username;
+
 
     $.ajax({
         type: 'POST',
         crossDomain: true,
         url: url,
         success: function(data) {
-            console.log(data)
+            document.getElementById("submitButton").disabled = true;
             globalPlayerId = data;
         }
     })
@@ -41,13 +50,12 @@ function enterGame() {
     var id = setInterval(checkGame, 2000);
 
     function checkGame() {
-        var checkURL = "/checkgame";
+        var checkURL = "/checkgame?playerId=" + globalPlayerId;
         $.ajax({
             type: 'GET',
             crossDomain: true,
             url: checkURL,
             success: function(data) {
-                console.log(data)
                 if (data == "False") {
                     //Do Nothing
                 } else {
@@ -60,11 +68,12 @@ function enterGame() {
                         url: initURL,
                         success: function(data) {
                             //data stores the dictionary that contains the card names and ids
-                            console.log(data);
 
                             //Hide the form elements and show the game buttons
                             hideShowGame();
                             updateBoard(data);
+
+                            document.getElementById("opponent").innerHTML = "Playing against <strong>" + data["opponent"] + "</strong>!";
 
                             var isTurn = data["is_turn"];
                             if (isTurn == 1) {
@@ -92,7 +101,6 @@ function endTurn() {
         crossDomain: true,
         url: endTurnURL,
         success: function(data) {
-            console.log("Response from endTurn: " + data)
             if (data['success'] == 1) {
                 updateBoard(data);
                 waitForTurn();
@@ -114,13 +122,15 @@ function waitForTurn() {
             crossDomain: true,
             url: checkURL,
             success: function(data) {
-                console.log("Respone from waitTurn: " + data)
                 if (data["my_turn"] == "True") {
                     //Can stop waiting for turn
                     clearInterval(id);
                     enableButtons();
                 }
 
+                if (data["winner"] >= 0) {
+                    clearInterval(id);
+                }
                 updateBoard(data);
             }
         })
@@ -131,6 +141,10 @@ function playCard(cardIndex) {
     var card = playerDeck[cardIndex];
     var cardId = card[0];
     var humanCardId = 0;
+
+    //TODO: Filter human options based on 
+    // -Whether or not they're dead
+    // -Whether or not they have an applicable cancer
 
     bootbox.prompt({
         title: "Cancer type selection",
@@ -167,7 +181,6 @@ function playCard(cardIndex) {
                         inputOptions.push(toAdd);
                     }
                 }
-                console.log(inputOptions);
                 if (inputOptions.length == 0) {
                     //No available options for this human
                     returnNoOptions();
@@ -255,10 +268,10 @@ function sendPlayRequest(cardId, humanCardId, specifier, cardIndex) {
         crossDomain: true,
         url: playURL,
         success: function(data) {
-            console.log(data);
             if (data["man1_cancer_points"] != null) {
                 updateBoardNotDeck(data);
                 handlePlayEnd(cardIndex);
+                checkVictory(data);
             } else {
                 bootbox.alert(data);
                 return;
@@ -291,13 +304,11 @@ function discardCard(cardIndex) {
     var cardId = card[0];
 
     var discardURL = "/discardcard?playerId=" + globalPlayerId + "&cardId=" + cardId;
-    console.log("Discard URL: " + discardURL);
     $.ajax({
         type: 'POST',
         crossDomain: true,
         url: discardURL,
         success: function(data) {
-            console.log(data);
             updateBoardNotDeck(data);
             handleDiscardEnd(cardIndex);
         }
@@ -346,7 +357,8 @@ function updateBoard(data) {
         document.getElementById(type).innerHTML = deck[i - 1][4];
 
         var titleId = "card" + i + "Title";
-        colorIdByType(titleId, deck[i - 1][4]);
+        var descriptionId = "card" + i + "Desc";
+        colorByType(titleId, descriptionId, deck[i - 1][4]);
     }
 
 
@@ -355,15 +367,24 @@ function updateBoard(data) {
     setColors(playerType);
 
     updateBoardNotDeck(data);
-    updateDeckSizes(data);
 }
 
 //Updates the state of the game board but not the deck in the player's hands
 function updateBoardNotDeck(data) {
+
+    checkVictory(data);
+
     var man1CancerPoints = data["man1_cancer_points"];
     var man2CancerPoints = data["man2_cancer_points"];
     var woman1CancerPoints = data["woman1_cancer_points"];
     var woman2CancerPoints = data["woman2_cancer_points"];
+
+    document.getElementById("gameAnnouncement").innerHTML = "Note: " + data["announcement"];
+    document.getElementById("zombieDeckSize").innerHTML = "Zomb Deck: <strong>" + data["deck_sizes"][0] + "</strong>";
+    document.getElementById("doctorDeckSize").innerHTML = "Doc Deck: <strong>" + data["deck_sizes"][1] + "</strong>";
+    document.getElementById("zombieDiscardSize").innerHTML = "Zomb Discard: <strong>" + data["deck_sizes"][2] + "</strong>";
+    document.getElementById("doctorDiscardSize").innerHTML = "Doc Discard: <strong>" + data["deck_sizes"][3] + "</strong>";
+
 
     for (var i = 0; i < 8; i++) {
         var id0 = "0points" + i;
@@ -417,13 +438,13 @@ function updateBoardNotDeck(data) {
         }
     }
 
-    updateEffects(data);
+    //updateEffects(data);
     updateCardNames(data);
 
 }
 
 //Colors the element with titleId using the minor type as a conditional
-function colorIdByType(titleId, minor_type) {
+function colorByType(titleId, descriptionId, minor_type) {
     var color = "";
     if (minor_type == "MUTAGEN-CELL FACTOR") {
         color = "#ff0000";
@@ -441,7 +462,10 @@ function colorIdByType(titleId, minor_type) {
         color = "0000ff";
     }
 
+    console.log(document.getElementById(descriptionId).innerHTML);
+
     document.getElementById(titleId).style.color = color;
+    document.getElementById(descriptionId).style.color = color;
 }
 
 
@@ -490,28 +514,54 @@ function updateEffects(data) {
 
 // Updates the card names divs with the given data
 function updateCardNames(data) {
-    if (printCards) {
-        document.getElementById("man1Cards").innerHTML = data["man1_cards"];
-        document.getElementById("man2Cards").innerHTML = data["man2_cards"];
-        document.getElementById("woman1Cards").innerHTML = data["woman1_cards"];
-        document.getElementById("woman2Cards").innerHTML = data["woman2_cards"];
+
+    var man1Cards = data["man1_effects"];
+    var newHTML = "<strong>Man1: </strong>";
+    for (var i = 0; i < man1Cards.length; i++) {
+        var cardName = man1Cards[i];
+        newHTML = newHTML + cardName;
+        if (i < man1Cards.length - 1) {
+            newHTML = newHTML + " | ";
+        }
     }
+    document.getElementById("man1Cards").innerHTML = newHTML;
+
+    var man2Cards = data["man2_effects"];
+    var newHTML = "<strong>Man2: </strong>";
+    for (var i = 0; i < man2Cards.length; i++) {
+        var cardName = man2Cards[i];
+        newHTML = newHTML + cardName;
+        if (i < man2Cards.length - 1) {
+            newHTML = newHTML + " | ";
+        }
+    }
+    document.getElementById("man2Cards").innerHTML = newHTML;
+
+    var woman1Cards = data["woman1_effects"];
+    var newHTML = "<strong>Wmn1: </strong>";
+    for (var i = 0; i < woman1Cards.length; i++) {
+        var cardName = woman1Cards[i];
+        newHTML = newHTML + cardName;
+        if (i < woman1Cards.length - 1) {
+            newHTML = newHTML + " | ";
+        }
+    }
+    document.getElementById("woman1Cards").innerHTML = newHTML;
+
+    var woman2Cards = data["woman2_effects"];
+    var newHTML = "<strong>Wmn2: </strong>";
+    for (var i = 0; i < woman2Cards.length; i++) {
+        var cardName = woman2Cards[i];
+        newHTML = newHTML + cardName;
+        if (i < woman2Cards.length - 1) {
+            newHTML = newHTML + " | ";
+        }
+    }
+    document.getElementById("woman2Cards").innerHTML = newHTML;
+
+
 }
 
-// Updates the two discard pile size categories
-function updateDeckSizes(data) {
-    var zombieString = "Zombie Discard Pile Size: <strong>" + data["zombie_discard_size"] + "</strong>";
-    document.getElementById("zombieSize").innerHTML = zombieString;
-
-    var doctorString = "Doctor Discard Pile Size: <strong>" + data["doctor_discard_size"] + "</strong";
-    document.getElementById("doctorSize").innerHTML = doctorString;
-
-    var zombieString2 = "Zombie Deck Size: <strong>" + data["zombie_deck_size"] + "</strong>";
-    document.getElementById("zombieDeckSize").innerHTML = zombieString2;
-
-    var doctorString2 = "Doctor Deck Size: <strong>" + data["doctor_deck_size"] + "</strong>";
-    document.getElementById("doctorDeckSize").innerHTML = doctorString2;
-}
 
 function clearStatuses() {
     for (i = 1; i <= 6; i++) {
@@ -546,48 +596,48 @@ function disablePlayButtons() {
 function hideShowGame() {
     document.getElementById("enterForm").style.display = "none";
     document.getElementById("waitMessage").style.display = "none";
-    document.getElementById("playTable").style.display = "block";
-    document.getElementById("humanTable").style.display = "block";
-    document.getElementById("effectTable").style.display = "block";
-    document.getElementById("playerInfo").style.display = "block";
-
-    document.getElementById("gameHeading").style.display = "block";
-    document.getElementById("card1Button").style.display = 'inline';
-    document.getElementById("card2Button").style.display = 'inline';
-    document.getElementById("card3Button").style.display = 'inline';
-    document.getElementById("card4Button").style.display = 'inline';
-    document.getElementById("card5Button").style.display = 'inline';
-    document.getElementById("card6Button").style.display = 'inline';
-
-    document.getElementById("card1Discard").style.display = 'inline';
-    document.getElementById("card2Discard").style.display = 'inline';
-    document.getElementById("card3Discard").style.display = 'inline';
-    document.getElementById("card4Discard").style.display = 'inline';
-    document.getElementById("card5Discard").style.display = 'inline';
-    document.getElementById("card6Discard").style.display = 'inline';
+    document.getElementById("homeScreen").style.display = "none";
+    document.getElementById("gameBody").style.display = "block";
 }
 
 function setColors(playerType) {
     if (playerType == "Zombie") {
-        document.getElementById("card1Desc").style.color = "#ff0000";
-        document.getElementById("card2Desc").style.color = "#ff0000";
-        document.getElementById("card3Desc").style.color = "#ff0000";
-        document.getElementById("card4Desc").style.color = "#ff0000";
-        document.getElementById("card5Desc").style.color = "#ff0000";
-        document.getElementById("card6Desc").style.color = "#ff0000";
-
         document.getElementById("playerInfo").style.color = "#ff0000";
         document.getElementById("playerInfo").innerHTML = playerName + ", you are a ZOMBIE";
-
     } else {
-        document.getElementById("card1Desc").style.color = "#0000ff";
-        document.getElementById("card2Desc").style.color = "#0000ff";
-        document.getElementById("card3Desc").style.color = "#0000ff";
-        document.getElementById("card4Desc").style.color = "#0000ff";
-        document.getElementById("card5Desc").style.color = "#0000ff";
-        document.getElementById("card6Desc").style.color = "#0000ff";
-
         document.getElementById("playerInfo").style.color = "#0000ff";
         document.getElementById("playerInfo").innerHTML = playerName + ", you are a DOCTOR";
     }
+}
+
+function checkVictory(data) {
+    if (data["winner"] >= 0) {
+        if (data["winner"] == globalPlayerId) {
+            // We won
+            console.log("GG I WON!!!!!");
+            document.getElementById("gameBody").style.display = "none";
+            document.getElementById("victoryScreen").style.display = "block";
+            if (data["player_type"] == "Zombie") {
+                document.getElementById("victoryScreen").backgroundColor = "#a83246";
+            } else {
+                document.getElementById("victoryScreen").backgroundColor = "#3257a8";
+            }
+
+            document.getElementById("victoryMessage").innerHTML = "Congrats " + playerName + ", you won!";
+        } else {
+            // We lost
+            console.log("OH SHIT I LOST!!!!");
+            document.getElementById("gameBody").style.display = "none";
+            document.getElementById("defeatScreen").style.display = "block";
+            if (data["player_type"] == "Zombie") {
+                document.getElementById("defeatScreen").backgroundColor = "#a83246";
+            } else {
+                document.getElementById("defeatScreen").backgroundColor = "#3257a8";
+            }
+            document.getElementById("defeatMessage").innerHTML = "Sorry " + playerName + ", you lost.";
+        }
+
+        return 1;
+    }
+    return 0;
 }

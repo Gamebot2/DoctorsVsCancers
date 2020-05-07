@@ -9,10 +9,14 @@ class Game:
         self.player1 = player1
         self.player2 = player2
 
+        self.player1_name = ""
+        self.player2_name = ""
+
+        self.current_announcement = ""
+
         self.player_moving = 1
 
         #All types of decks, including discard piles, trash pile, and player decks
-        self.human_cards = []
         self.cancer_deck = []
         self.zombie_deck = []
         self.doctor_deck = []
@@ -37,6 +41,7 @@ class Game:
         self.spec_map = {"L":"Lung Cancer", "B":"Breast Cancer","P":"Prostate Cancer","C":"Colon Cancer","N":"Pancreatic Cancer","M":"Mouth Cancer", "U":"Uterus/Ovary Cancer","R":"Cervical Cancer"}
         self.index_map = {"L": 0, "B": 1, "P": 2, "C": 3, "N": 4, "M": 5, "U": 6, "R":7}
         self.name_map = {"L": "Lung", "B": "Breast", "P": "Prostate", "C": "Colon", "N": "Pancreatic", "M": "Mouth", "U": "Uterus/Ovary", "R":"Cervical"}
+        self.human_map = {0: "Man 1", 1: "Man 2", 2: "Woman 1", 3: "Woman 2"}
 
         self.init_cancer_points()
         self.init_cards()
@@ -52,15 +57,12 @@ class Game:
     def get_player2(self):
         return self.player2
     
+    def set_names(self, name1, name2):
+        self.player1_name = name1
+        self.player2_name = name2
+    
     # Functional Methods
     def init_cards(self):
-        #Add the human cards
-        self.human_cards.append(Card(0, "MAN 1", "BMAN1", "Base", "Human", 0, "", "", 0, [], [], "", [], 0))
-        self.human_cards.append(Card(1, "MAN 2", "BMAN2", "Base", "Human", 0, "", "", 0, [], [], "", [], 0))
-        self.human_cards.append(Card(2, "WOMAN 1", "BWOMAN1", "Base", "Human", 0, "", "", 0, [], [], "", [], 0))
-        self.human_cards.append(Card(3, "WOMAN 2", "BWOMAN2", "Base", "Human", 0, "", "", 0, [], [], "", [], 0))
-
-        # ADD EFFECT MESSAGES
 
         #Add the cancer cards
         self.cancer_deck.append(Card(4, "Lung Cancer", "BLU1", "Base", "Cancer", 0, "", "", 0, [], [], "Has Lung Cancer", [], 0))
@@ -82,7 +84,7 @@ class Game:
         self.zombie_deck.append(Card(19, "BRCA1 germline (inherited)", "Z1B1G", "Zombie", "MUTAGEN-CELL FACTOR", 1, "2 points towards breast or ovary", "BO", 2, ["Breast", "Uterus/Ovary"], [], "", [], 1))
         self.zombie_deck.append(Card(20, "BRCA2 germline (inherited)", "Z1B2G", "Zombie", "MUTAGEN-CELL FACTOR", 1, "2 points towards breast, prostate, or pancreas", "BPN", 2, ["Breast", "Prostate", "Pancreatic"], [], "", [], 1))
         self.zombie_deck.append(Card(21, "p53 germline (inherited)", "Z1PG", "Zombie", "MUTAGEN-CELL FACTOR", 1, "2 points towards breast", "B", 2, ["Breast"], [], "", [], 1))
-        self.zombie_deck.append(Card(22, "Mismatch repair germline (inherited)", "Z1MMG", "Zombie", "MUTAGEN-CELL FACTOR", 1, "2 points towards colon or gyn", "CUR", 2, ["Colon", "Uterus/Ovary", "Cervical"], [], "", [], 1)) #What the hell is Gyn
+        self.zombie_deck.append(Card(22, "Mismatch repair germline (inherited)", "Z1MMG", "Zombie", "MUTAGEN-CELL FACTOR", 1, "2 points towards colon or gyn", "CUR", 2, ["Colon", "Uterus/Ovary", "Cervical"], [], "", [], 1))
         self.zombie_deck.append(Card(23, "APC germline (inherited)", "Z1PG", "Zombie", "MUTAGEN-CELL FACTOR", 1, "3 points towards colon", "C", 3, ["Colon"], [], "", [], 1))
         self.zombie_deck.append(Card(24, "p53 somatic (not hereditary)", "Z1PS", "Zombie", "MUTAGEN-CELL FACTOR", 1, "1 point towards any cancer", "A", 1, ["Any"], [], "", [], 0))
         self.zombie_deck.append(Card(25, "PTEN somatic (not hereditary)", "Z1PT", "Zombie", "MUTAGEN-CELL FACTOR", 1, "1 point towards any cancer", "A", 1, ["Any"], [], "", [], 0))
@@ -162,7 +164,7 @@ class Game:
         self.doctor_deck.append(Card(92, "Prostatectomy", "D2PT", "Doctor", "TREATMENT", 2, "Cures prostate cancer", "P", 0, ["Prostate"], [], "", [], 0))
         self.doctor_deck.append(Card(93, "Partial Colectomy", "D2CL", "Doctor", "TREATMENT", 2, "Cures colon cancer", "C", 0, ["Colon"], [], "", [], 0))
         self.doctor_deck.append(Card(94, "Whipple Procedure", "D2WH", "Doctor", "TREATMENT", 2, "Cures pancreatic cancer, no more treatment for this human", "N", 0, ["Pancreatic"], [], "", [], 0))
-        self.doctor_deck.append(Card(95, "Neck Radiation", "D2NX", "Doctor", "TREATMENT", 2, "Cures oral cancer, no more treatment for this human", "M", 0, ["Mouth"], [], "", [], 0))
+        self.doctor_deck.append(Card(95, "Neck Radiation", "D2NX", "Doctor", "TREATMENT", 2, "Cures oral cancer", "M", 0, ["Mouth"], [], "", [], 0))
         self.doctor_deck.append(Card(96, "Hysterectomy", "D2HY", "Doctor", "TREATMENT", 2, "Cures gyn cancer", "UR", 0, ["Uterus/Ovary", "Cervical"], [], "", [], 0))
         self.doctor_deck.append(Card(97, "Hysterectomy or radiation", "D2HX", "Doctor", "TREATMENT", 2, "Cures cervical cancer", "UR", 0, ["Cervical"], [], "", [], 0))
 
@@ -216,7 +218,6 @@ class Game:
 
     # Initializes the master deck for easy card retrieval
     def init_master_deck(self):
-        self.master_deck.extend(self.human_cards)
         self.master_deck.extend(self.cancer_deck)
         self.master_deck.extend(self.zombie_deck)
         self.master_deck.extend(self.doctor_deck)
@@ -414,6 +415,11 @@ class Game:
             human = self.humans[human_card_id]
             self.trash_pile.extend(human.trash)
             human.trash.clear()
+        
+        if self.player_moving == 1:
+            self.current_announcement = "<strong>" + self.player1_name + "</strong> played " + card.name + " on " + self.human_map[human_card_id]
+        if self.player_moving == 2:
+            self.current_announcement = "<strong>" + self.player2_name + "</strong> played " + card.name + " on " + self.human_map[human_card_id]
 
         return "Success"
     
@@ -430,6 +436,11 @@ class Game:
                 card = self.player2_deck[i]
                 if card.id == card_id:
                     self.replace_card_doctor(card_id, self.doctor_discard_pile)
+
+        if self.player_moving == 1:
+            self.current_announcement = "<strong>" + self.player1_name + "</strong> discarded " + card.name
+        if self.player_moving == 2:
+            self.current_announcement = "<strong>" + self.player2_name + "</strong> discarded " + card.name
         return 1
 
 
@@ -477,9 +488,11 @@ class Game:
         if self.player_moving == 1:
             # Switching from Zombie phase to Doctor phase
             self.player_moving = 2
+            self.current_announcement = "<strong>" + self.player1_name + "</strong> ended their turn."
         else:
             # Switching from Doctor phase to Zombie phase
             self.player_moving = 1
+            self.current_announcement = "<strong>" + self.player2_name + "</strong> ended their turn."
 
             for i in range(4):
                 if self.humans[i].about_to_die == 1:
@@ -538,8 +551,6 @@ class Game:
         client_state["woman1_cancer_points"] = self.humans[2].cancer_points 
         client_state["woman2_cancer_points"] = self.humans[3].cancer_points 
 
-        client_state["zombie_discard_size"] = len(self.zombie_discard_pile)
-        client_state["doctor_discard_size"] = len(self.doctor_discard_pile)
 
         to_return = []
         for card in self.cancer_deck:
@@ -547,8 +558,9 @@ class Game:
 
         client_state["cancer_cards_not_played"] = to_return
 
-        client_state["zombie_deck_size"] = len(self.zombie_deck)
-        client_state["doctor_deck_size"] = len(self.doctor_deck)
+        client_state["deck_sizes"] = [len(self.zombie_deck), len(self.doctor_deck), len(self.zombie_discard_pile), len(self.doctor_discard_pile)]
+
+        client_state["announcement"] = self.current_announcement
 
         client_state["winner"] = self.winner
 
