@@ -29,10 +29,10 @@
                     <table id="humanTable">
                         <tr>
                             <td class="rowLabel"></td>
-                            <td class="humanCol" style="font-weight: bolder;">Man 1</td>
-                            <td class="humanCol" style="font-weight: bolder;">Man 2</td>
-                            <td class="humanCol" style="font-weight: bolder;">Woman 1</td>
-                            <td class="humanCol" style="font-weight: bolder;">Woman 2</td>
+                            <td class="humanCol" style="font-weight: bolder;" id="human0">Liam</td>
+                            <td class="humanCol" style="font-weight: bolder;" id="human1">Noah</td>
+                            <td class="humanCol" style="font-weight: bolder;" id="human2">Emma</td>
+                            <td class="humanCol" style="font-weight: bolder;" id="human3">Ava</td>
                         </tr>
                         <!-- ID SCHEME: <human_card_index>points<cancer_index>-->
                         <tr>
@@ -99,7 +99,7 @@
                 </td>
                 <td id="playTableCol">
                     <table id="playTable">
-                        <tr>
+                        <tr class="topRow">
                             <td class="buttonCol"><button type="button" id="card1Button" value="card1" onclick="playCard(0)" class="cardButton">Play Card 1</button></td>
                             <td class="buttonCol"><button type="button" id="card2Button" value="card2" onclick="playCard(1)" class="cardButton">Play Card 2</button></td>
                             <td class="buttonCol"><button type="button" id="card3Button" value="card3" onclick="playCard(2)" class="cardButton">Play Card 3</button></td>
@@ -179,6 +179,26 @@
                                 <p id="card6Type"></p>
                             </td>
                         </tr>
+                        <tr id="cardNotes" class="bottomRow">
+                            <td class="buttonCol">
+                                <p id="card1Notes"></p>
+                            </td>
+                            <td class="buttonCol">
+                                <p id="card2Notes"></p>
+                            </td>
+                            <td class="buttonCol">
+                                <p id="card3Notes"></p>
+                            </td>
+                            <td class="buttonCol">
+                                <p id="card4Notes"></p>
+                            </td>
+                            <td class="buttonCol">
+                                <p id="card5Notes"></p>
+                            </td>
+                            <td class="buttonCol">
+                                <p id="card6Notes"></p>
+                            </td>
+                        </tr>
                         <tr id="statusRow">
                             <!--td class="labelCol">Status: </td-->
                             <td class="statusCol">
@@ -225,7 +245,7 @@
 
         <div class="spacer"></div>
 
-        <div style="overflow-x:auto">
+        <div style="overflow-x:auto" id="cardTable">
             <p>Cards</p>
             <p id="man1Cards" class="cardNames"></p>
             <p id="man2Cards" class="cardNames"></p>

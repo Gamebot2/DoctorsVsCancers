@@ -73,7 +73,17 @@ tr {
     width: 6%;
     font-weight: bolder;
     text-align: center;
-    border: 2px solid black;
+    border-left: 3px solid black;
+    border-right: 3px solid black;
+    border-collapse: separate;
+}
+
+.topRow {
+    border-top: 3px solid black;
+}
+
+.bottomRow {
+    border-bottom: 3px solid black;
 }
 
 .statusCol {
@@ -85,14 +95,28 @@ tr {
     height: 1em;
 }
 
-#cardDescriptiosn {
-    font-size: 12px;
+#cardDescriptions {
+    font-size: 13px;
     vertical-align: top;
+    font-weight: lighter;
+}
+
+#cardTypes {
+    font-size: 14px;
+    vertical-align: top;
+    font-weight: lighter;
+}
+
+#cardNotes {
+    font-size: 11px;
+    vertical-align: top;
+    font-weight: lighter;
 }
 
 .rowLabel {
     font-weight: bolder;
     text-align: right;
+    padding-right: 5px;
 }
 
 .humanCol {
@@ -174,4 +198,30 @@ th {
     left: 75%;
     width: 25%;
     text-align: center;
+}
+
+.warningCard {
+    color: red;
+    display: inline;
+    font-weight: bolder;
+}
+
+#human0,
+#human1,
+#human2,
+#human3 {
+    padding-right: 8px;
+    padding-left: 8px;
+}
+
+#cardTable {
+    padding-left: 5px;
+}
+
+#gameHeading {
+    font-size: 35px;
+}
+
+#playerInfo {
+    font-size: 25px;
 }

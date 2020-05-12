@@ -96,9 +96,9 @@ def check_game():
     player_id = request.args['playerId']
     game = get_game(int(player_id))
     if(game == None):
-        return "False"
+        return jsonify("False")
     else:
-        return "True"
+        return jsonify("True")
 
 # Client application received a "True" from check_game: need to provide initial game data
 @app.route('/initgame')
@@ -112,7 +112,7 @@ def init_game():
     else:
         client_state["is_turn"] = 0
         client_state["opponent"] = game.player1_name
-    return client_state
+    return jsonify(client_state)
 
 # Method for clients to repeatedly poll to see if it's their turn yet
 @app.route('/checkmyturn')
@@ -130,7 +130,7 @@ def check_turn():
             client_state["my_turn"] = "True"
         else:
             client_state["my_turn"] = "False"
-    return client_state
+    return jsonify(client_state)
 
 # Method for clients to end their turn in their game
 @app.route('/endmyturn')
@@ -140,7 +140,7 @@ def end_turn():
     game.switch_player()
     client_state = game.get_client_state(player_id)
     client_state['success'] = 1
-    return client_state
+    return jsonify(client_state)
 
 # Client application is playing a card: need to process the card played
 # Parameters: playerId, cardId, humanCardId in [-1,0...3]
@@ -153,9 +153,9 @@ def play_card():
     game = get_game(player_id)
     message = game.play_card(player_id, card_id, human_card_id, specifier)
     if(message == "Success"):
-        return game.get_client_state(player_id)
+        return jsonify(game.get_client_state(player_id))
     else:
-        return message
+        return jsonify(message)
 
 # Client application is discarding a card: need to place in discard pile
 # Parameters: playerId, cardId
@@ -166,9 +166,9 @@ def discard_card():
     game = get_game(player_id)
     success = game.discard_card(player_id, card_id)
     if(success == 1):
-        return game.get_client_state(player_id)
+        return jsonify(game.get_client_state(player_id))
     else:
-        return False
+        return jsonify(False)
 
 def get_game(player_id):
     for i in range(len(games)):
@@ -197,4 +197,4 @@ def print_players():
 @app.route('/testinput')
 def test_input():
     url = request.args['url']
-    return url
+    return jsonify(url)

@@ -2,6 +2,7 @@ var globalPlayerId = -1;
 var playerDeck;
 var playedCards = 0;
 var playerName = "";
+var zombieOrDoctor = "";
 
 var cancerCodeMap = {
     "Lung": "L",
@@ -13,6 +14,18 @@ var cancerCodeMap = {
     "Uterus/Ovary": "U",
     "Cervical": "R"
 }
+
+
+var redCards = [
+    "Has Lung Cancer",
+    "Has Breast Cancer",
+    "Has Prostate Cancer",
+    "Has Colon Cancer",
+    "Has Pancreatic Cancer",
+    "Has Mouth Cancer",
+    "Has Uterus/Ovary Cancer",
+    "Has Cervical Cancer"
+]
 
 window.onbeforeunload = function() {
     return "Data will be lost if you leave the page, are you sure?";
@@ -151,16 +164,16 @@ function playCard(cardIndex) {
         message: '<p>Please select an option below:</p>',
         inputType: 'radio',
         inputOptions: [{
-            text: "Man 1",
+            text: "Liam",
             value: 0
         }, {
-            text: "Man 2",
+            text: "Noah",
             value: 1
         }, {
-            text: "Woman 1",
+            text: "Emma",
             value: 2
         }, {
-            text: "Woman 2",
+            text: "Ava",
             value: 3
         }],
         callback: function(result) {
@@ -285,7 +298,11 @@ function handlePlayEnd(cardIndex) {
     //Card has finished being played: now need to disable card controls, display a played message, and count played cards
     playedCards++;
 
-    if (playedCards == 2) {
+    if (playedCards == 2 && zombieOrDoctor == "Zombie") {
+        disablePlayButtons();
+    }
+
+    if (playedCards == 6 && zombieOrDoctor == "Doctor") {
         disablePlayButtons();
     }
 
@@ -335,34 +352,25 @@ function updateBoard(data) {
     var deck = data["player_deck"]
     playerDeck = deck;
 
-    //Populate the card titles row
-    document.getElementById("card1Title").innerHTML = deck[0][1];
-    document.getElementById("card2Title").innerHTML = deck[1][1];
-    document.getElementById("card3Title").innerHTML = deck[2][1];
-    document.getElementById("card4Title").innerHTML = deck[3][1];
-    document.getElementById("card5Title").innerHTML = deck[4][1];
-    document.getElementById("card6Title").innerHTML = deck[5][1];
-
-    //Populate the card descriptions
-    document.getElementById("card1Desc").innerHTML = deck[0][2];
-    document.getElementById("card2Desc").innerHTML = deck[1][2];
-    document.getElementById("card3Desc").innerHTML = deck[2][2];
-    document.getElementById("card4Desc").innerHTML = deck[3][2];
-    document.getElementById("card5Desc").innerHTML = deck[4][2];
-    document.getElementById("card6Desc").innerHTML = deck[5][2];
-
-    //Populate the card types
+    //Populate the player's card information
     for (var i = 1; i <= 6; i++) {
-        var type = "card" + i + "Type";
-        document.getElementById(type).innerHTML = deck[i - 1][4];
-
         var titleId = "card" + i + "Title";
+        document.getElementById(titleId).innerHTML = deck[i - 1][1];
+
         var descriptionId = "card" + i + "Desc";
-        colorByType(titleId, descriptionId, deck[i - 1][4]);
+        document.getElementById(descriptionId).innerHTML = deck[i - 1][2];
+
+        var typeId = "card" + i + "Type";
+        document.getElementById(typeId).innerHTML = deck[i - 1][4];
+
+        var noteId = "card" + i + "Notes";
+        document.getElementById(noteId).innerHTML = deck[i - 1][5];
+
+        colorByType(titleId, descriptionId, typeId, noteId, deck[i - 1][4]);
     }
 
 
-    //Style card color depending on playerType
+    //Style heading color depending on playerType
     var playerType = data["player_type"]
     setColors(playerType);
 
@@ -388,137 +396,55 @@ function updateBoardNotDeck(data) {
 
     for (var i = 0; i < 8; i++) {
         var id0 = "0points" + i;
-        if (man1CancerPoints[i] != 0) {
-            document.getElementById(id0).innerHTML = man1CancerPoints[i];
-            document.getElementById(id0).style.backgroundColor = "#ffffff";
-
-        } else {
-            document.getElementById(id0).innerHTML = "";
-            document.getElementById(id0).style.backgroundColor = "#cccccc";
-            if (i == 1 || i == 6 || i == 7) {
-                document.getElementById(id0).style.backgroundColor = "#666666";
-            }
-        }
+        updateBasedOnValueMan(id0, man1CancerPoints, i);
 
         var id1 = "1points" + i;
-        if (man2CancerPoints[i] != 0) {
-            document.getElementById(id1).innerHTML = man2CancerPoints[i];
-            document.getElementById(id1).style.backgroundColor = "#ffffff";
-
-        } else {
-            document.getElementById(id1).innerHTML = "";
-            document.getElementById(id1).style.backgroundColor = "#cccccc";
-            if (i == 1 || i == 6 || i == 7) {
-                document.getElementById(id1).style.backgroundColor = "#666666";
-            }
-        }
+        updateBasedOnValueMan(id1, man2CancerPoints, i);
 
         var id2 = "2points" + i;
-        if (woman1CancerPoints[i] != 0) {
-            document.getElementById(id2).innerHTML = woman1CancerPoints[i];
-            document.getElementById(id2).style.backgroundColor = "#ffffff";
-        } else {
-            document.getElementById(id2).innerHTML = "";
-            document.getElementById(id2).style.backgroundColor = "#cccccc";
-            if (i == 2) {
-                document.getElementById(id2).style.backgroundColor = "#666666";
-            }
-        }
+        updateBasedOnValueWoman(id2, woman1CancerPoints, i);
 
         var id3 = "3points" + i;
-        if (woman2CancerPoints[i] != 0) {
-            document.getElementById(id3).innerHTML = woman2CancerPoints[i];
-            document.getElementById(id3).style.backgroundColor = "#ffffff";
-        } else {
-            document.getElementById(id3).innerHTML = "";
-            document.getElementById(id3).style.backgroundColor = "#cccccc";
-            if (i == 2) {
-                document.getElementById(id3).style.backgroundColor = "#666666";
-            }
-        }
+        updateBasedOnValueWoman(id3, woman2CancerPoints, i);
     }
 
-    //updateEffects(data);
     updateCardNames(data);
-
 }
 
 //Colors the element with titleId using the minor type as a conditional
-function colorByType(titleId, descriptionId, minor_type) {
+function colorByType(titleId, descriptionId, typeId, noteId, minor_type) {
     var color = "";
     if (minor_type == "MUTAGEN-CELL FACTOR") {
-        color = "#ff0000";
+        color = "#c20020"; //Red
     } else if (minor_type == "MUTAGEN-HUMAN FACTOR") {
-        color = "00ff00";
+        color = "00ab1a"; //Green
     } else if (minor_type == "MAJOR ATTACK") {
-        color = "0000ff";
+        color = "000eab"; //Blue
     } else if (minor_type == "INDIRECT ATTACK") {
-        color = "ff00ff";
+        color = "d600c2"; //Purple
     }
 
     if (minor_type == "PRE-EMPTION") {
-        color = "ff0000";
+        color = "c20020"; //Red
     } else if (minor_type == "TREATMENT") {
-        color = "0000ff";
+        color = "000eab"; //Blue
     }
-
-    console.log(document.getElementById(descriptionId).innerHTML);
 
     document.getElementById(titleId).style.color = color;
     document.getElementById(descriptionId).style.color = color;
+    document.getElementById(typeId).style.color = color;
+    document.getElementById(noteId).style.color = color;
 }
 
-
-//Updates the effect board with the data provided
-function updateEffects(data) {
-    var man1Effects = data["man1_effects"];
-    var man1EffectString = "Man 1: ";
-    for (var i = 0; i < man1Effects.length; i++) {
-        man1EffectString += man1Effects[i];
-        if (i != man1Effects.length - 1) {
-            man1EffectString += ", ";
-        }
-    }
-    document.getElementById("man1Effects").innerHTML = man1EffectString;
-
-    var man2Effects = data["man2_effects"];
-    var man2EffectString = "Man 2: ";
-    for (var i = 0; i < man2Effects.length; i++) {
-        man2EffectString += man2Effects[i];
-        if (i != man2Effects.length - 1) {
-            man2EffectString += ", ";
-        }
-    }
-    document.getElementById("man2Effects").innerHTML = man2EffectString;
-
-    var woman1Effects = data["woman1_effects"];
-    var woman1EffectString = "Woman 1: ";
-    for (var i = 0; i < woman1Effects.length; i++) {
-        woman1EffectString += woman1Effects[i];
-        if (i != woman1Effects.length - 1) {
-            woman1EffectString += ", ";
-        }
-    }
-    document.getElementById("woman1Effects").innerHTML = woman1EffectString;
-
-    var woman2Effects = data["woman2_effects"];
-    var woman2EffectString = "Woman 2: ";
-    for (var i = 0; i < woman2Effects.length; i++) {
-        woman2EffectString += woman2Effects[i];
-        if (i != woman2Effects.length - 1) {
-            woman2EffectString += ", ";
-        }
-    }
-    document.getElementById("woman2Effects").innerHTML = woman2EffectString;
-}
 
 // Updates the card names divs with the given data
 function updateCardNames(data) {
 
     var man1Cards = data["man1_effects"];
-    var newHTML = "<strong>Man1: </strong>";
+    var newHTML = "<strong>Liam: </strong>";
     for (var i = 0; i < man1Cards.length; i++) {
         var cardName = man1Cards[i];
+        cardName = modifyCardName(cardName, 0);
         newHTML = newHTML + cardName;
         if (i < man1Cards.length - 1) {
             newHTML = newHTML + " | ";
@@ -527,9 +453,10 @@ function updateCardNames(data) {
     document.getElementById("man1Cards").innerHTML = newHTML;
 
     var man2Cards = data["man2_effects"];
-    var newHTML = "<strong>Man2: </strong>";
+    var newHTML = "<strong>Noah: </strong>";
     for (var i = 0; i < man2Cards.length; i++) {
         var cardName = man2Cards[i];
+        cardName = modifyCardName(cardName, 1);
         newHTML = newHTML + cardName;
         if (i < man2Cards.length - 1) {
             newHTML = newHTML + " | ";
@@ -538,9 +465,10 @@ function updateCardNames(data) {
     document.getElementById("man2Cards").innerHTML = newHTML;
 
     var woman1Cards = data["woman1_effects"];
-    var newHTML = "<strong>Wmn1: </strong>";
+    var newHTML = "<strong>Emma: </strong>";
     for (var i = 0; i < woman1Cards.length; i++) {
         var cardName = woman1Cards[i];
+        cardName = modifyCardName(cardName, 2);
         newHTML = newHTML + cardName;
         if (i < woman1Cards.length - 1) {
             newHTML = newHTML + " | ";
@@ -549,16 +477,16 @@ function updateCardNames(data) {
     document.getElementById("woman1Cards").innerHTML = newHTML;
 
     var woman2Cards = data["woman2_effects"];
-    var newHTML = "<strong>Wmn2: </strong>";
+    var newHTML = "<strong>Ava: </strong>";
     for (var i = 0; i < woman2Cards.length; i++) {
         var cardName = woman2Cards[i];
+        cardName = modifyCardName(cardName, 3);
         newHTML = newHTML + cardName;
         if (i < woman2Cards.length - 1) {
             newHTML = newHTML + " | ";
         }
     }
     document.getElementById("woman2Cards").innerHTML = newHTML;
-
 
 }
 
@@ -604,9 +532,11 @@ function setColors(playerType) {
     if (playerType == "Zombie") {
         document.getElementById("playerInfo").style.color = "#ff0000";
         document.getElementById("playerInfo").innerHTML = playerName + ", you are a ZOMBIE";
+        zombieOrDoctor = "Zombie";
     } else {
         document.getElementById("playerInfo").style.color = "#0000ff";
         document.getElementById("playerInfo").innerHTML = playerName + ", you are a DOCTOR";
+        zombieOrDoctor = "Doctor";
     }
 }
 
@@ -640,4 +570,59 @@ function checkVictory(data) {
         return 1;
     }
     return 0;
+}
+
+function modifyCardName(cardName, id) {
+    if (redCards.includes(cardName)) {
+        return "<p class='warningCard'>" + cardName + "</p>";
+    }
+
+    if (cardName == "Dead") {
+        markDead(id);
+    }
+
+    return cardName;
+}
+
+function markDead(id) {
+    var humanId = "human" + id;
+    document.getElementById(humanId).style.textDecoration = "line-through";
+
+    for (var i = 0; i < 8; i++) {
+        var actualId = id + "points" + i;
+        document.getElementById(actualId).style.backgroundColor = "#a63f55";
+        document.getElementById(actualId).innerHTML = "";
+    }
+}
+
+function updateBasedOnValueMan(id, cancerPoints, i) {
+    if (cancerPoints[i] != 0) {
+        document.getElementById(id).innerHTML = cancerPoints[i];
+        document.getElementById(id).style.backgroundColor = "#ffffff";
+        if (cancerPoints[i] >= 4) {
+            document.getElementById(id).style.backgroundColor = "#a63f55";
+        }
+    } else {
+        document.getElementById(id).innerHTML = "";
+        document.getElementById(id).style.backgroundColor = "#cccccc";
+        if (i == 1 || i == 6 || i == 7) {
+            document.getElementById(id).style.backgroundColor = "#666666";
+        }
+    }
+}
+
+function updateBasedOnValueWoman(id, cancerPoints, i) {
+    if (cancerPoints[i] != 0) {
+        document.getElementById(id).innerHTML = cancerPoints[i];
+        document.getElementById(id).style.backgroundColor = "#ffffff";
+        if (cancerPoints[i] >= 4) {
+            document.getElementById(id).style.backgroundColor = "#a63f55";
+        }
+    } else {
+        document.getElementById(id).innerHTML = "";
+        document.getElementById(id).style.backgroundColor = "#cccccc";
+        if (i == 2) {
+            document.getElementById(id).style.backgroundColor = "#666666";
+        }
+    }
 }

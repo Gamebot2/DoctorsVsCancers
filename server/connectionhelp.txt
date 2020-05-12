@@ -1,0 +1,18 @@
+
+ssh -i "CancerZombieAttackKeyPair.pem" ubuntu@ec2-18-191-246-20.us-east-2.compute.amazonaws.com
+
+pm2 start --name "CZA" python3 -- application.py
+
+pm2 start CZA
+
+pm2 stop
+
+pm2 logs
+
+
+sudo service nginx start
+sudo service nginx restart
+sudo service nginx stop
+
+joinglimpse.com/get
+https://heyyo.house
