@@ -113,8 +113,8 @@ class Game:
 
         #Zombie Deck: Major attack cards
         self.zombie_deck.append(Card(48, "Brain Metastasis", "Z2BR", "Zombie", "MAJOR ATTACK", 2, "Use in breast with HER2 or lung cancer", "common in lung, kidney, melanoma, and HER2 breast, causes seizures, headache, stroke symptoms", 0, ["Lung", "Breast"], [], "Hit by Brain Metastasis!", [], 0))
-        self.zombie_deck.append(Card(49, "Lung Metastasis", "Z2LG1", "Zombie", "MAJOR ATTACK", 2, "Use in lung, breast, colon, gyn cancers", "common in all malignancies", 0, ["Lung", "Breast", "Colon", "Uterus/Ovary", "Cervical"], [], "Hit by Lung Metastasis!", [], 0))
-        self.zombie_deck.append(Card(50, "Lung Metastasis", "Z2LG2", "Zombie", "MAJOR ATTACK", 2, "Use in lung, breast, colon, gyn cancers", "common in all malignancies", 0, ["Lung", "Breast", "Colon", "Uterus/Ovary", "Cervical"], [], "Hit by Lung Metastasisi!", [], 0))
+        self.zombie_deck.append(Card(49, "Lung Metastasis", "Z2LG1", "Zombie", "MAJOR ATTACK", 2, "Use in lung, breast, colon, mouth, or gyn cancers", "common in all malignancies", 0, ["Lung", "Breast", "Colon", "Mouth", "Uterus/Ovary", "Cervical"], [], "Hit by Lung Metastasis!", [], 0))
+        self.zombie_deck.append(Card(50, "Lung Metastasis", "Z2LG2", "Zombie", "MAJOR ATTACK", 2, "Use in lung, breast, colon, mouth, or gyn cancers", "common in all malignancies", 0, ["Lung", "Breast", "Colon", "Mouth", "Uterus/Ovary", "Cervical"], [], "Hit by Lung Metastasisi!", [], 0))
         self.zombie_deck.append(Card(51, "Malignant Pleural Effusion", "Z2PL1", "Zombie", "MAJOR ATTACK", 2, "Use in lung, breast cancers", "most common in lung and breast, can occur in any", 0, ["Lung", "Breast"], [], "Hit by Malignant Pleural Effusion!", [], 0))
         self.zombie_deck.append(Card(52, "Malignant Pleural Effusion", "Z2PL2", "Zombie", "MAJOR ATTACK", 2, "Use in lung, breast cancers", "most common in lung and breast, can occur in any", 0, ["Lung", "Breast"], [], "Hit by Malignant Pleural Effusion!", [], 0))
         self.zombie_deck.append(Card(53, "Liver Metastasis", "Z2LV1", "Zombie", "MAJOR ATTACK", 2, "Use in lung, breast, colon, gyn, pancreatic cancers", "most common in GI cancer and lung, can occur in any", 0, ["Lung", "Breast", "Colon", "Uterus/Ovary", "Cervical", "Pancreatic"], [], "Hit by Liver Metastasis!", [], 0))
@@ -596,6 +596,72 @@ class Game:
             card = self.master_deck[i]
             if card.id == card_id:
                 return card
+    
+    # Returns all cell factor card names
+    def get_cell_factor_card_names(self):
+        to_return = []
+        for card in self.master_deck:
+            if card.minor_type == "MUTAGEN-CELL FACTOR":
+                if card.effect_message == "":
+                    to_return.append(card.name)
+                else:
+                    to_return.append(card.effect_message)
+        return to_return
+
+    # Returns all human factor card names
+    def get_human_factor_card_names(self):
+        to_return = []
+        for card in self.master_deck:
+            if card.minor_type == "MUTAGEN-HUMAN FACTOR":
+                if card.effect_message == "":
+                    to_return.append(card.name)
+                else:
+                    to_return.append(card.effect_message)
+        return to_return
+    
+    # Returns all major attack card names
+    def get_major_attack_card_names(self):
+        to_return = []
+        for card in self.master_deck:
+            if card.minor_type == "MAJOR ATTACK":
+                if card.effect_message == "":
+                    to_return.append(card.name)
+                else:
+                    to_return.append(card.effect_message)
+        return to_return
+    
+    # Returns all indirect attack card names
+    def get_indirect_attack_card_names(self):
+        to_return = []
+        for card in self.master_deck:
+            if card.minor_type == "INDIRECT ATTACK":
+                if card.effect_message == "":
+                    to_return.append(card.name)
+                else:
+                    to_return.append(card.effect_message)
+        return to_return
+    
+    # Returns all premption card names
+    def get_preemption_card_names(self):
+        to_return = []
+        for card in self.master_deck:
+            if card.id >= 70 and card.id <= 86:
+                if card.effect_message == "":
+                    to_return.append(card.name)
+                else:
+                    to_return.append(card.effect_message)
+        return to_return
+
+    # Returns all treatment card names
+    def get_treatment_card_names(self):
+        to_return = []
+        for card in self.master_deck:
+            if card.minor_type == "TREATMENT":
+                if card.effect_message == "":
+                    to_return.append(card.name)
+                else:
+                    to_return.append(card.effect_message)
+        return to_return
 
     # Returns appropriate cancer points array for human card id provided
     def get_cancer_points_by_human_id(self, human_card_id):

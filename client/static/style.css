@@ -43,6 +43,7 @@
     float: left;
     margin-top: 0%;
     padding-top: 0%;
+    width: 100%;
 }
 
 td {
@@ -224,4 +225,14 @@ th {
 
 #playerInfo {
     font-size: 25px;
+}
+
+#ruleButton {
+    position: fixed;
+    top: 0%;
+    left: 0%;
+    width: 15%;
+    border-radius: 2px;
+    background-color: #ccc;
+    text-align: center;
 }

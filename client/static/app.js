@@ -16,7 +16,7 @@ var cancerCodeMap = {
 }
 
 
-var redCards = [
+var cancerCards = [
     "Has Lung Cancer",
     "Has Breast Cancer",
     "Has Prostate Cancer",
@@ -26,6 +26,22 @@ var redCards = [
     "Has Uterus/Ovary Cancer",
     "Has Cervical Cancer"
 ]
+
+//Store the specific card names that we need to color: the ones that show up in medical history
+var cellFactorCards = []
+var humanFactorCards = []
+var majorAttackCards = []
+var indirectAttackCards = []
+var preemptionCards = []
+var treatmentCards = []
+
+//Stores the colors we use to color the cards on both the card table and the medical history
+var color1 = "#c20020"; //Red
+var color2 = "#dba40d"; //Orange
+var color3 = "#c45f12"; //Dark Orange
+var color4 = "#b0b021"; //Gold
+var color5 = "#751ec7"; //Purple
+var color6 = "#000eab"; //Blue
 
 window.onbeforeunload = function() {
     return "Data will be lost if you leave the page, are you sure?";
@@ -41,9 +57,24 @@ window.onunload = function() {
     })
 }
 
+function showRules() {
+    var message = "<p style='font-weight:bold;font-size:22px;margin-bottom:0px;'>Cancer Zombie Attack!</p><br> In this card game, players take the roles of cancer causing zombies or doctors, fighting for the humans’ lives. <ul><li>Zombie players must accumulate mutagen points to turn normal cells cancerous, then use those cancer cells to attack the humans.</li><li>Doctors must prevent or catch the cancer before it can go any further, or try to treat it after it has spread.</li><li>If the doctors save even one human they win the game.</li></ul>";
+    message += "<strong>Basic gameplay</strong><br><ul><li>On their turn, each player plays cards from their hand (max 2 for zombies), then discards as many as they want, and then ends their turn.  New cards are then drawn so every turn starts with 6 cards.</li><li>There are 52 cards in each deck.  The game is over after the second time through either deck, or if all humans die.</li></ul>";
+    message += "<strong>Zombie gameplay:</strong><ul><li>There are two classes of zombie cards: Mutagens and Attacks. Mutagens are played on the humans before cancers, Attacks are played only after there is a cancer.</li><li>Each Mutagen card says how many points it adds towards a type of cancer.  Once the human has 4  points towards any specific cancer, they get that cancer.</li><li>After a human has a cancer, zombies play Attack cards.  There are two types, Major Attacks and Indirect Attacks.</li><li>If two Major Attacks are not treated, the human with the cancer dies.  The doctor has one turn to treat the second major attack before the human dies.</li></ul>";
+    message += "<strong>Doctor Gameplay</strong><ul><li>There are two classes of doctor cards: Pre-Emption and Treatments. Pre-emption cards are played before the human has cancer, Treatments are played only after there is a cancer.</li><li>Most treatments respond to a specific attack and are played after that attack.</li><li>Note: Surgery or radiation is required to cure most cancers.  These cards are valuable and must be played before the cancer spreads.  If there is a Major Attack, that must be treated before the cancer can be removed.";
+    bootbox.alert({
+        message: message,
+        size: 'large'
+    });
+}
 
 function enterGame() {
     var username = document.getElementById("userName").value;
+    if (username == "") {
+        bootbox.alert("Make sure to enter a name!");
+        return;
+    }
+
     playerName = username;
     var url = "/entergame?name=" + username;
 
@@ -86,6 +117,13 @@ function enterGame() {
                             hideShowGame();
                             updateBoard(data);
 
+                            cellFactorCards = data["cell_factor_cards"]
+                            humanFactorCards = data["human_factor_cards"];
+                            majorAttackCards = data["major_attack_cards"];
+                            indirectAttackCards = data["indirect_attack_cards"];
+                            preemptionCards = data["preemption_cards"];
+                            treatmentCards = data["treatment_cards"];
+
                             document.getElementById("opponent").innerHTML = "Playing against <strong>" + data["opponent"] + "</strong>!";
 
                             var isTurn = data["is_turn"];
@@ -114,11 +152,12 @@ function endTurn() {
         crossDomain: true,
         url: endTurnURL,
         success: function(data) {
+            checkReset(data);
             if (data['success'] == 1) {
                 updateBoard(data);
                 waitForTurn();
             } else {
-                alert('WHYYYYYYYYY');
+                alert('Please Log in again');
             }
         }
     })
@@ -135,6 +174,11 @@ function waitForTurn() {
             crossDomain: true,
             url: checkURL,
             success: function(data) {
+
+                if (data == "Reset") {
+                    clearInterval(id);
+                }
+
                 if (data["my_turn"] == "True") {
                     //Can stop waiting for turn
                     clearInterval(id);
@@ -286,7 +330,7 @@ function sendPlayRequest(cardId, humanCardId, specifier, cardIndex) {
                 handlePlayEnd(cardIndex);
                 checkVictory(data);
             } else {
-                bootbox.alert(data);
+                bootbox.alert("Please refresha and log in again.");
                 return;
             }
         }
@@ -348,6 +392,8 @@ function handleDiscardEnd(cardIndex) {
 //Updates the state of the game board in correspondence with the client data passed from server
 function updateBoard(data) {
 
+    checkReset(data);
+
     //Just updates the deck and lets next function do the rest
     var deck = data["player_deck"]
     playerDeck = deck;
@@ -380,6 +426,7 @@ function updateBoard(data) {
 //Updates the state of the game board but not the deck in the player's hands
 function updateBoardNotDeck(data) {
 
+    checkReset(data);
     checkVictory(data);
 
     var man1CancerPoints = data["man1_cancer_points"];
@@ -410,32 +457,6 @@ function updateBoardNotDeck(data) {
 
     updateCardNames(data);
 }
-
-//Colors the element with titleId using the minor type as a conditional
-function colorByType(titleId, descriptionId, typeId, noteId, minor_type) {
-    var color = "";
-    if (minor_type == "MUTAGEN-CELL FACTOR") {
-        color = "#c20020"; //Red
-    } else if (minor_type == "MUTAGEN-HUMAN FACTOR") {
-        color = "00ab1a"; //Green
-    } else if (minor_type == "MAJOR ATTACK") {
-        color = "000eab"; //Blue
-    } else if (minor_type == "INDIRECT ATTACK") {
-        color = "d600c2"; //Purple
-    }
-
-    if (minor_type == "PRE-EMPTION") {
-        color = "c20020"; //Red
-    } else if (minor_type == "TREATMENT") {
-        color = "000eab"; //Blue
-    }
-
-    document.getElementById(titleId).style.color = color;
-    document.getElementById(descriptionId).style.color = color;
-    document.getElementById(typeId).style.color = color;
-    document.getElementById(noteId).style.color = color;
-}
-
 
 // Updates the card names divs with the given data
 function updateCardNames(data) {
@@ -572,9 +593,64 @@ function checkVictory(data) {
     return 0;
 }
 
+function checkReset(data) {
+    if (data == "Reset") {
+        console.log(data);
+        bootbox.alert("Games have been reset: please refresh and log in again!");
+    }
+}
+
+//Colors the element with titleId using the minor type as a conditional
+function colorByType(titleId, descriptionId, typeId, noteId, minor_type) {
+    var color = "";
+    if (minor_type == "MUTAGEN-CELL FACTOR") {
+        color = color1;
+    } else if (minor_type == "MUTAGEN-HUMAN FACTOR") {
+        color = color2;
+    } else if (minor_type == "MAJOR ATTACK") {
+        color = color3;
+    } else if (minor_type == "INDIRECT ATTACK") {
+        color = color4;
+    }
+
+    if (minor_type == "PRE-EMPTION") {
+        color = color5;
+    } else if (minor_type == "TREATMENT") {
+        color = color6;
+    }
+
+    document.getElementById(titleId).style.color = color;
+    document.getElementById(descriptionId).style.color = color;
+    document.getElementById(typeId).style.color = color;
+    document.getElementById(noteId).style.color = color;
+}
+
 function modifyCardName(cardName, id) {
-    if (redCards.includes(cardName)) {
+    if (cancerCards.includes(cardName)) {
         return "<p class='warningCard'>" + cardName + "</p>";
+    }
+
+    if (cardName == "Healthy") {
+        return cardName;
+    }
+
+    if (cellFactorCards.includes(cardName)) {
+        return "<p style='display:inline;color:" + color1 + ";'>" + cardName + "</p>";
+    }
+    if (humanFactorCards.includes(cardName)) {
+        return "<p style='display:inline;color:" + color2 + ";'>" + cardName + "</p>";
+    }
+    if (majorAttackCards.includes(cardName)) {
+        return "<p style='display:inline;color:" + color3 + ";'>" + cardName + "</p>";
+    }
+    if (indirectAttackCards.includes(cardName)) {
+        return "<p style='display:inline;color:" + color4 + ";'>" + cardName + "</p>";
+    }
+    if (preemptionCards.includes(cardName)) {
+        return "<p style='display:inline;color:" + color5 + ";'>" + cardName + "</p>";
+    }
+    if (treatmentCards.includes(cardName)) {
+        return "<p style='display:inline;color:" + color6 + ";'>" + cardName + "</p>";
     }
 
     if (cardName == "Dead") {

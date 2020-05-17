@@ -19,6 +19,9 @@
 
     <div id="gameBody">
 
+        <div id="ruleButton" onclick="showRules()">
+            Click for Rules
+        </div>
         <!-- WHERE THE ACTUAL GAME HTML BEGINS -->
         <h1 id="gameHeading" style="text-align: center;">Cancer Zombie Attack!</h1>
         <h2 id="playerInfo" style="text-align: center;"></h2>
@@ -93,6 +96,8 @@
                             <td class="humanCol" id="3points7"></td>
                         </tr>
                     </table>
+                    <br>
+                    <p style="text-align: right;padding-top:5px;display:block;">(4 points to cause cancer)</p>
                 </td>
                 <td style="color: white; width:5vw;">
 
@@ -246,7 +251,7 @@
         <div class="spacer"></div>
 
         <div style="overflow-x:auto" id="cardTable">
-            <p>Cards</p>
+            <p>Medical History</p>
             <p id="man1Cards" class="cardNames"></p>
             <p id="man2Cards" class="cardNames"></p>
             <p id="woman1Cards" class="cardNames"></p>
