@@ -10,12 +10,38 @@
     width: 5vw;
 }
 
+#titleText {
+    padding-top: 5%;
+    width: 30%;
+    height: auto;
+}
+
 #homeScreen {
     width: 100%;
     height: 100%;
     text-align: center;
+    display: block;
     background-image: url("/background");
     background-size: 100% 100%;
+}
+
+#submitButton {
+    background-color: #eee;
+    border: 2px solid #555;
+    color: black;
+    padding: 8px 16px;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 16px;
+    margin: 4px 2px;
+    transition-duration: 0.4s;
+    cursor: pointer;
+}
+
+#submitButton:hover {
+    background-color: #555;
+    color: white;
 }
 
 #cardTable {
@@ -23,11 +49,15 @@
 }
 
 #enterForm {
-    padding: 40vh 40vw 5vw
+    color: white;
+    padding: 15vh 40vw 2vh
 }
 
 #gameBody {
     display: none;
+    size: 100% 100%;
+    background-image: url('/gamebackground');
+    background-size: 100% 100%;
 }
 
 #playTableCol {
@@ -58,6 +88,7 @@ tr {
 
 #waitMessage {
     display: none;
+    color: white;
 }
 
 #endTurnButton {
@@ -136,18 +167,38 @@ th {
     height: 35px;
 }
 
-#victoryScreen {
+#zombieScreen {
     width: 100%;
     height: 100%;
     text-align: center;
     display: none;
+    background-image: url('/zombievictory');
+    background-size: 100% 100%;
 }
 
-#defeatScreen {
+#doctorScreen {
     width: 100%;
     height: 100%;
     text-align: center;
     display: none;
+    background-image: url('/doctorvictory');
+    background-size: 100% 100%;
+}
+
+#zombieText {
+    position: fixed;
+    left: 5%;
+    top: 2%;
+    width: 30%;
+    height: auto;
+}
+
+#doctorText {
+    position: fixed;
+    top: 5%;
+    right: 35%;
+    width: 30%;
+    height: auto;
 }
 
 .cardNames {
@@ -235,4 +286,11 @@ th {
     border-radius: 2px;
     background-color: #ccc;
     text-align: center;
+}
+
+#lobbyScreen {
+    background-image: url('/gamebackground');
+    background-size: 100% 100%;
+    width: 100%;
+    height: 100%;
 }

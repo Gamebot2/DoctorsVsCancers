@@ -22,7 +22,35 @@ def render_lobby():
 
 @app.route('/background')
 def get_background():
-    return send_file(os.path.join("../","client","assets","homescreenbackground.png"))
+    return send_file(os.path.join("../","client","assets","homescreen.png"))
+
+@app.route('/gamebackground')
+def get_game_background():
+    return send_file(os.path.join("../","client","assets","gamebackground.png"))
+
+@app.route('/titletext')
+def get_title_text():
+    return send_file(os.path.join("../","client","assets","titletext.png"))
+
+@app.route('/zombievictory')
+def get_zombie_victory():
+    return send_file(os.path.join("../","client","assets","ZombieVictory.png"))
+
+@app.route('/doctorvictory')
+def get_doctor_victory():
+    return send_file(os.path.join("../","client","assets","DoctorVictory.png"))
+
+@app.route('/zombietext')
+def get_zombie_text():
+    return send_file(os.path.join("../","client","assets","zombieFont.png"))
+
+@app.route('/doctortext')
+def get_doctor_text():
+    return send_file(os.path.join("../","client","assets","doctorFont.png"))
+
+@app.route('/lobbybackground')
+def get_lobby_background():
+    return send_file(os.path.join("../","client","assets","lobbybackground.png"))
 
 # Adds a new player to the lobby (requires the url parameter to start the game for)
 @app.route('/entergame', methods = ['POST'])

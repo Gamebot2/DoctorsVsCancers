@@ -4,6 +4,8 @@ var playedCards = 0;
 var playerName = "";
 var zombieOrDoctor = "";
 
+var gameBodyId = "gameBody";
+
 var cancerCodeMap = {
     "Lung": "L",
     "Breast": "B",
@@ -330,7 +332,7 @@ function sendPlayRequest(cardId, humanCardId, specifier, cardIndex) {
                 handlePlayEnd(cardIndex);
                 checkVictory(data);
             } else {
-                bootbox.alert("Please refresha and log in again.");
+                bootbox.alert("Please refresh and log in again.");
                 return;
             }
         }
@@ -546,7 +548,7 @@ function hideShowGame() {
     document.getElementById("enterForm").style.display = "none";
     document.getElementById("waitMessage").style.display = "none";
     document.getElementById("homeScreen").style.display = "none";
-    document.getElementById("gameBody").style.display = "block";
+    document.getElementById(gameBodyId).style.display = "block";
 }
 
 function setColors(playerType) {
@@ -565,27 +567,23 @@ function checkVictory(data) {
     if (data["winner"] >= 0) {
         if (data["winner"] == globalPlayerId) {
             // We won
-            console.log("GG I WON!!!!!");
-            document.getElementById("gameBody").style.display = "none";
-            document.getElementById("victoryScreen").style.display = "block";
-            if (data["player_type"] == "Zombie") {
-                document.getElementById("victoryScreen").backgroundColor = "#a83246";
+            document.getElementById(gameBodyId).style.display = "none";
+            if (zombieOrDoctor == "Zombie") {
+                document.getElementById("zombieScreen").style.display = "block";
             } else {
-                document.getElementById("victoryScreen").backgroundColor = "#3257a8";
+                document.getElementById("doctorScreen").style.display = "block";
             }
 
-            document.getElementById("victoryMessage").innerHTML = "Congrats " + playerName + ", you won!";
+            //document.getElementById("victoryMessage").innerHTML = "Congrats " + playerName + ", you won!";
         } else {
             // We lost
-            console.log("OH SHIT I LOST!!!!");
-            document.getElementById("gameBody").style.display = "none";
-            document.getElementById("defeatScreen").style.display = "block";
+            document.getElementById(gameBodyId).style.display = "none";
             if (data["player_type"] == "Zombie") {
-                document.getElementById("defeatScreen").backgroundColor = "#a83246";
+                document.getElementById("doctorScreen").style.display = "block";
             } else {
-                document.getElementById("defeatScreen").backgroundColor = "#3257a8";
+                document.getElementById("zombieScreen").style.display = "block";
             }
-            document.getElementById("defeatMessage").innerHTML = "Sorry " + playerName + ", you lost.";
+            //document.getElementById("defeatMessage").innerHTML = "Sorry " + playerName + ", you lost.";
         }
 
         return 1;

@@ -1,5 +1,6 @@
 var playersIn = [];
 
+
 function startGames() {
     var startGamesURL = "/startgame";
     $.ajax({

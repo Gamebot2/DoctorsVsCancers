@@ -8,17 +8,18 @@
 </head>
 
 <body>
-    <button id="startButton" onclick="startGames()">Start Games</button>
+    <div id="lobbyScreen">
+        <button id="startButton" onclick="startGames()">Start Games</button>
 
-    <br>
-    <br>
-    <button id="resetButton" onclick="resetGames()">Reset Games</button>
+        <br>
+        <br>
+        <button id="resetButton" onclick="resetGames()">Reset Games</button>
 
-    <br>
-    <br>
-    <p id="matchedNames">Currently Playing: </p>
-    <p id="unmatchedNames">In Lobby: </p>
-
+        <br>
+        <br>
+        <p id="matchedNames">Currently Playing: </p>
+        <p id="unmatchedNames">In Lobby: </p>
+    </div>
     <!-- JS, Bootstrap, Popper, and BootBox -->
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
     <script src="./static/popper/popper.min.js"></script>
