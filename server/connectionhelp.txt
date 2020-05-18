@@ -9,7 +9,6 @@ pm2 stop
 
 pm2 logs
 
-
 sudo service nginx start
 sudo service nginx restart
 sudo service nginx stop
