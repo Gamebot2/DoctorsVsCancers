@@ -9,9 +9,13 @@ pm2 stop
 
 pm2 logs
 
+gemcita
+
 sudo service nginx start
 sudo service nginx restart
 sudo service nginx stop
 
 joinglimpse.com/get
 https://heyyo.house
+
+Make colors a little more distinct

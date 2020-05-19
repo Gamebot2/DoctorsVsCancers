@@ -327,12 +327,16 @@ function sendPlayRequest(cardId, humanCardId, specifier, cardIndex) {
         crossDomain: true,
         url: playURL,
         success: function(data) {
+            if (data == "Reset") {
+                bootbox.alert("Please refresh and log in again.");
+                return;
+            }
             if (data["man1_cancer_points"] != null) {
                 updateBoardNotDeck(data);
                 handlePlayEnd(cardIndex);
                 checkVictory(data);
             } else {
-                bootbox.alert("Please refresh and log in again.");
+                bootbox.alert(data);
                 return;
             }
         }
