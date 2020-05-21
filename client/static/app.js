@@ -3,6 +3,7 @@ var playerDeck;
 var playedCards = 0;
 var playerName = "";
 var zombieOrDoctor = "";
+var enteredGame = 0;
 
 var gameBodyId = "gameBody";
 
@@ -72,6 +73,10 @@ function showRules() {
 
 function startGame() {
     var startURL = "/startgame";
+    if (enteredGame == 0) {
+        document.getElementById("startResponse").innerHTML = "Enter the game first!";
+        return;
+    }
 
     $.ajax({
         type: 'GET',
@@ -106,6 +111,7 @@ function enterGame() {
         success: function(data) {
             document.getElementById("submitButton").disabled = true;
             globalPlayerId = data;
+            enteredGame = 1;
         }
     })
 

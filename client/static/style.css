@@ -49,6 +49,26 @@
     bottom: 2%;
     right: 2%;
     height: 10%;
+    padding: 10px 15px;
+    background-color: rgba(200, 200, 200, 0.5);
+    border-radius: 3px;
+}
+
+#startButton {
+    background-color: #eee;
+    border: 2px solid #555;
+    color: black;
+    text-align: center;
+    display: inline-block;
+    font-size: 16px;
+    transition-duration: 0.4s;
+    cursor: pointer;
+    padding: 4px 8px;
+}
+
+#startButton:hover {
+    background-color: #555;
+    color: white;
 }
 
 #cardTable {
