@@ -3,6 +3,7 @@
 <head>
     <title>Cancer Zombie Attack!</title>
     <link rel="stylesheet" type="text/css" href="./static/bootstrap/css/bootstrap.min.css">
+    <link rel="shortcut icon" href="/favicon" />
     <link rel="stylesheet" type="text/css" href="./static/style.css">
     <script src="./static/app.js"></script>
 </head>
@@ -16,6 +17,11 @@
             <button id="submitButton" type="button" value="submit" onclick="enterGame()">Submit</button>
         </form>
         <h4 id="waitMessage">Please wait for instructor to start the game.</h4>
+
+        <div id="startPanel">
+            <button id="startButton" onclick="startGame()">Try starting a game</button>
+            <p style="color:red;" id="startResponse"></p>
+        </div>
     </div>
 
     <div id="gameBody">

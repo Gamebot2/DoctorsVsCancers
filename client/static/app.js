@@ -70,6 +70,24 @@ function showRules() {
     });
 }
 
+function startGame() {
+    var startURL = "/startgame";
+
+    $.ajax({
+        type: 'GET',
+        crossDomain: true,
+        url: startURL,
+        success: function(data) {
+            if (data == "Odd players!") {
+                document.getElementById("startResponse").innerHTML = "Uneven player number!";
+            } else {
+                //Start was a success
+                document.getElementById("startResponse").innerHTML = "Loading...";
+            }
+        }
+    })
+}
+
 function enterGame() {
     var username = document.getElementById("userName").value;
     if (username == "") {

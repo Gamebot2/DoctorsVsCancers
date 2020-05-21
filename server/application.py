@@ -52,6 +52,10 @@ def get_doctor_text():
 def get_lobby_background():
     return send_file(os.path.join("../","client","assets","lobbybackground.png"))
 
+@app.route('/favicon')
+def get_favicon():
+    return send_file(os.path.join("../","client","assets","faviconTransparent.ico"))
+
 # Adds a new player to the lobby (requires the url parameter to start the game for)
 @app.route('/entergame', methods = ['POST'])
 def enter_game():

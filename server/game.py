@@ -41,7 +41,7 @@ class Game:
         self.spec_map = {"L":"Lung Cancer", "B":"Breast Cancer","P":"Prostate Cancer","C":"Colon Cancer","N":"Pancreatic Cancer","M":"Mouth Cancer", "U":"Uterus/Ovary Cancer","R":"Cervical Cancer"}
         self.index_map = {"L": 0, "B": 1, "P": 2, "C": 3, "N": 4, "M": 5, "U": 6, "R":7}
         self.name_map = {"L": "Lung", "B": "Breast", "P": "Prostate", "C": "Colon", "N": "Pancreatic", "M": "Mouth", "U": "Uterus/Ovary", "R":"Cervical"}
-        self.human_map = {0: "Man 1", 1: "Man 2", 2: "Woman 1", 3: "Woman 2"}
+        self.human_map = {0: "Liam", 1: "Noah", 2: "Emma", 3: "Ava"}
 
         self.init_cancer_points()
         self.init_cards()
