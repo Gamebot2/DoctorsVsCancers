@@ -60,6 +60,11 @@ window.onunload = function() {
     })
 }
 
+function showInstructions() {
+    var instructions = "Enter the game and have somebody else do the same thing. When you both have the wait message, try hitting the start game button and play away!";
+    bootbox.alert(instructions);
+}
+
 function showRules() {
     var message = "<p style='font-weight:bold;font-size:22px;margin-bottom:0px;'>Cancer Zombie Attack!</p><br> In this card game, players take the roles of cancer causing zombies or doctors, fighting for the humans’ lives. <ul><li>Zombie players must accumulate mutagen points to turn normal cells cancerous, then use those cancer cells to attack the humans.</li><li>Doctors must prevent or catch the cancer before it can go any further, or try to treat it after it has spread.</li><li>If the doctors save even one human they win the game.</li></ul>";
     message += "<strong>Basic gameplay</strong><br><ul><li>On their turn, each player plays cards from their hand (max 2 for zombies), then discards as many as they want, and then ends their turn.  New cards are then drawn so every turn starts with 6 cards.</li><li>There are 52 cards in each deck.  The game is over after the second time through the zombie deck, or if all humans die.</li></ul>";
